@@ -89,7 +89,8 @@ void lll_periph_prepare(void *param)
 	}
 
 	/* Invoke common pipeline handling of prepare */
-	err = lll_prepare(lll_is_abort_cb, lll_conn_abort_cb, prepare_cb, 0, p);
+	err = lll_prepare(lll_conn_peripheral_is_abort_cb, lll_conn_abort_cb,
+			  prepare_cb, 0, param);
 	LL_ASSERT(!err || err == -EINPROGRESS);
 }
 

@@ -155,6 +155,36 @@ void lll_conn_prepare_reset(void)
 #endif /* CONFIG_BT_CTLR_LE_ENC */
 }
 
+#if defined(CONFIG_BT_CENTRAL)
+int lll_conn_central_is_abort_cb(void *next, void *curr,
+				 lll_prepare_cb_t *resume_cb)
+{
+	/* Do not be aborted by same event if a single central trx has not been
+	 * exchanged.
+	 */
+	if ((next == curr) && (trx_cnt < 1U)) {
+		return -EBUSY;
+	}
+
+	return -ECANCELED;
+}
+#endif /* CONFIG_BT_CENTRAL */
+
+#if defined(CONFIG_BT_PERIPHERAL)
+int lll_conn_peripheral_is_abort_cb(void *next, void *curr,
+				 lll_prepare_cb_t *resume_cb)
+{
+	/* Do not be aborted by same event if a single peripheral trx has not
+	 * been exchanged.
+	 */
+	if ((next == curr) && (trx_cnt <= 1U)) {
+		return -EBUSY;
+	}
+
+	return -ECANCELED;
+}
+#endif /* CONFIG_BT_PERIPHERAL */
+
 void lll_conn_abort_cb(struct lll_prepare_param *prepare_param, void *param)
 {
 	struct event_done_extra *e;
