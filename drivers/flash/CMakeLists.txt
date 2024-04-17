@@ -142,6 +142,7 @@ zephyr_library_sources_ifdef(CONFIG_SOC_FLASH_NRF_RRAM soc_flash_nrf_rram.c)
 zephyr_library_sources_ifdef(CONFIG_SOC_FLASH_NRF_MRAM soc_flash_nrf_mram.c)
 zephyr_library_sources_ifdef(CONFIG_SOC_FLASH_NUMAKER_RMC soc_flash_numaker_rmc.c)
 zephyr_library_sources_ifdef(CONFIG_SOC_FLASH_SI32 flash_si32.c)
+zephyr_library_sources_ifdef(CONFIG_FLASH_QSPI_RENESAS_RA flash_qspi_renesas_ra.c)
 
 if(CONFIG_RA_FLASH_HP)
   zephyr_library_sources(flash_hp_ra.c)
