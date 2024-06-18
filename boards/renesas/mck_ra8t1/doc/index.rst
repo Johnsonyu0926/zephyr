@@ -102,6 +102,8 @@ The below features are currently supported on Zephyr OS for MCB-RA8T1 board:
 +--------------+------------+----------------------+
 | FLASH        | on-chip    | flash                |
 +--------------+------------+----------------------+
+| ULPT         | on-chip    | timer                |
++--------------+------------+----------------------+
 
 Other hardware features are currently not supported by the port.
 
