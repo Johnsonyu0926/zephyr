@@ -591,7 +591,7 @@ int npm1300_charger_init(const struct device *dev)
 
 	/* Disable automatic recharging if configured */
 	if (config->disable_recharge) {
-		 WRITE_BIT(byte, 0U, true);
+		WRITE_BIT(byte, 0U, true);
 	}
 
 	/* Disable NTC if configured */
@@ -602,7 +602,7 @@ int npm1300_charger_init(const struct device *dev)
 	ret = mfd_npm1300_reg_write(config->mfd, CHGR_BASE, CHGR_OFFSET_DIS_SET, byte);
 	if (ret != 0) {
 		return ret;
-	}	
+	}
 
 	/* Enable charging if configured */
 	if (config->charging_enable) {
