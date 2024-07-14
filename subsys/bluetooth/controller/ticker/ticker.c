@@ -2532,6 +2532,16 @@ static uint8_t ticker_job_reschedule_in_window(struct ticker_instance *instance)
 			if (TICKER_RESCHEDULE_PENDING(ticker_next) ||
 			    !ticker_next->ticks_slot ||
 			    !ticker_next->ticks_periodic) {
+				ticks_start_offset = window_start_ticks;
+
+				/* Reschedule at window start if no more tickers
+				 * in the list.
+				 */
+				if ((ticks_start_offset + ticks_slot) <=
+				    ticks_slot_window) {
+					ticks_to_expire = window_start_ticks;
+				}
+
 				ticker_id_next = ticker_next->next;
 
 				continue;
