@@ -24,15 +24,6 @@ config FNMATCH
 
 	  Please use CONFIG_POSIX_C_LIB_EXT instead.
 
-config GETENTROPY
-	bool "Support for getentropy [DEPRECATED]"
-	select DEPRECATED
-	select POSIX_C_LIB_EXT
-	help
-	  This option is deprecated.
-
-	  Please use CONFIG_POSIX_C_LIB_EXT instead.
-
 config GETOPT
 	bool "Getopt library support [DEPRECATED]"
 	select DEPRECATED
@@ -42,6 +33,7 @@ config GETOPT
 
 	  Please use CONFIG_POSIX_C_LIB_EXT instead.
 
+if PTHREAD
 config MAX_PTHREAD_COUNT
 	int "Maximum number of pthread_t [DEPRECATED]"
 	default POSIX_THREAD_THREADS_MAX if POSIX_THREADS
@@ -50,7 +42,9 @@ config MAX_PTHREAD_COUNT
 	  This option is deprecated.
 
 	  Please use CONFIG_POSIX_THREAD_THREADS_MAX instead.
+endif
 
+if PTHREAD_KEY
 config MAX_PTHREAD_KEY_COUNT
 	int "Maximum number of pthread_key_t [DEPRECATED]"
 	default POSIX_THREAD_KEYS_MAX if POSIX_THREADS
@@ -59,6 +53,7 @@ config MAX_PTHREAD_KEY_COUNT
 	  This option is deprecated.
 
 	  Please use CONFIG_POSIX_THREAD_KEYS_MAX instead.
+endif
 
 config MAX_TIMER_COUNT
 	int "Maximum number of timer_t [DEPRECATED]"
@@ -69,6 +64,7 @@ config MAX_TIMER_COUNT
 
 	  Please use CONFIG_POSIX_TIMER_MAX instead.
 
+if POSIX_MQUEUE
 config MSG_COUNT_MAX
 	int "Maximum number of messages in a POSIX message queue [DEPRECATED]"
 	default POSIX_MQ_OPEN_MAX if POSIX_MESSAGE_PASSING
@@ -77,7 +73,9 @@ config MSG_COUNT_MAX
 	  This option is deprecated.
 
 	  Please use CONFIG_POSIX_MQ_OPEN_MAX instead.
+endif
 
+if !NATIVE_LIBC
 config POSIX_CLOCK
 	bool "clock and sleep APIs [DEPRECATED]"
 	select DEPRECATED
@@ -90,27 +88,10 @@ config POSIX_CLOCK
 	  This option is deprecated.
 
 	  Please use CONFIG_POSIX_TIMERS instead.
-
-config POSIX_CONFSTR
-	bool "Retrieve string system configuration [DEPRECATED]"
-	select DEPRECATED
-	select POSIX_SINGLE_PROCESS
-	help
-	  This option is deprecated.
-
-	  Please use CONFIG_POSIX_SINGLE_PROCESS instead.
-
-config POSIX_ENV
-	bool "Support for environ, getenv(), getenv_r(), setenv(), and unsetenv() [DEPRECATED]"
-	select DEPRECATED
-	select POSIX_SINGLE_PROCESS
-	help
-	  This option is deprecated.
-
-	  Please use CONFIG_POSIX_SINGLE_PROCESS instead.
+endif
 
 config POSIX_FS
-	bool "Support for environ, getenv(), getenv_r(), setenv(), and unsetenv() [DEPRECATED]"
+	bool "POSIX file system API support [DEPRECATED]"
 	select DEPRECATED
 	select POSIX_FILE_SYSTEM
 	help
@@ -118,6 +99,7 @@ config POSIX_FS
 
 	  Please use CONFIG_POSIX_FILE_SYSTEM instead.
 
+if POSIX_SIGNAL
 config POSIX_LIMITS_RTSIG_MAX
 	int "_POSIX_RTSIG_MAX value in limits.h [DEPRECATED]"
 	default POSIX_RTSIG_MAX if POSIX_REALTIME_SIGNALS
@@ -126,6 +108,7 @@ config POSIX_LIMITS_RTSIG_MAX
 	  This option is deprecated.
 
 	  Please use CONFIG_POSIX_RTSIG_MAX instead.
+endif
 
 config POSIX_MAX_FDS
 	int "Maximum number of open file descriptors [DEPRECATED]"
@@ -137,6 +120,7 @@ config POSIX_MAX_FDS
 
 	  See also CONFIG_ZVFS_OPEN_MAX.
 
+if POSIX_FS
 config POSIX_MAX_OPEN_FILES
 	int "Maximum number of open file descriptors [DEPRECATED]"
 	default POSIX_OPEN_MAX
@@ -146,6 +130,7 @@ config POSIX_MAX_OPEN_FILES
 	  Please use CONFIG_POSIX_OPEN_MAX instead.
 
 	  See also CONFIG_ZVFS_OPEN_MAX.
+endif
 
 config POSIX_MQUEUE
 	bool "Message queue support [DEPRECATED]"
@@ -183,15 +168,6 @@ config POSIX_SYSCONF
 
 	  Please use CONFIG_POSIX_SINGLE_PROCESS instead.
 
-config POSIX_SYSLOG
-	bool "Support for syslog() [DEPRECATED]"
-	select DEPRECATED
-	select XSI_SYSTEM_LOGGING
-	help
-	  This option is deprecated.
-
-	  Please use CONFIG_XSI_SYSTEM_LOGGING instead.
-
 config POSIX_UNAME
 	bool "Support for uname [DEPRECATED]"
 	select DEPRECATED
@@ -201,6 +177,7 @@ config POSIX_UNAME
 
 	  Please use CONFIG_POSIX_SINGLE_PROCESS instead.
 
+if PTHREAD_IPC
 config PTHREAD
 	bool "pthread_t support [DEPRECATED]"
 	select DEPRECATED
@@ -209,7 +186,9 @@ config PTHREAD
 	  This option is deprecated.
 
 	  Please use CONFIG_POSIX_THREADS instead.
+endif
 
+if PTHREAD_IPC
 config PTHREAD_BARRIER
 	bool "pthread_barrier_t support [DEPRECATED]"
 	select DEPRECATED
@@ -218,7 +197,9 @@ config PTHREAD_BARRIER
 	  This option is deprecated.
 
 	  Please use CONFIG_POSIX_BARRIERS instead.
+endif
 
+if PTHREAD_IPC
 config PTHREAD_COND
 	bool "pthread_cond_t support [DEPRECATED]"
 	select DEPRECATED
@@ -227,8 +208,9 @@ config PTHREAD_COND
 	  This option is deprecated.
 
 	  Please use CONFIG_POSIX_THREADS instead.
+endif
 
-
+if POSIX_CLOCK
 config PTHREAD_IPC
 	bool "POSIX pthread IPC API [DEPRECATED]"
 	select DEPRECATED
@@ -237,7 +219,9 @@ config PTHREAD_IPC
 	  This option is deprecated.
 
 	  Please use CONFIG_POSIX_THREADS instead.
+endif
 
+if PTHREAD_IPC
 config PTHREAD_KEY
 	bool "pthread_key_t support [DEPRECATED]"
 	select DEPRECATED
@@ -246,7 +230,9 @@ config PTHREAD_KEY
 	  This option is deprecated.
 
 	  Please use CONFIG_POSIX_THREADS instead.
+endif
 
+if PTHREAD_IPC
 config PTHREAD_MUTEX
 	bool "pthread_mutex_t support [DEPRECATED]"
 	select DEPRECATED
@@ -255,7 +241,9 @@ config PTHREAD_MUTEX
 	  This option is deprecated.
 
 	  Please use CONFIG_POSIX_THREADS instead.
+endif
 
+if PTHREAD_IPC
 config PTHREAD_RWLOCK
 	bool "pthread_spinlock_t support [DEPRECATED]"
 	select DEPRECATED
@@ -264,7 +252,9 @@ config PTHREAD_RWLOCK
 	  This option is deprecated.
 
 	  Please use CONFIG_POSIX_READER_WRITER_LOCKS instead.
+endif
 
+if PTHREAD_IPC
 config PTHREAD_SPINLOCK
 	bool "pthread_spinlock_t support [DEPRECATED]"
 	select DEPRECATED
@@ -273,6 +263,7 @@ config PTHREAD_SPINLOCK
 	  This option is deprecated.
 
 	  Please use CONFIG_POSIX_SPIN_LOCKS instead.
+endif
 
 config TIMER
 	bool "Timer support [DEPRECATED]"
@@ -283,6 +274,7 @@ config TIMER
 
 	  Please use CONFIG_POSIX_TIMERS instead.
 
+if TIMER
 config TIMER_DELAYTIMER_MAX
 	int "Maximum count returned my timer_getoverrun() in POSIX application [DEPRECATED]"
 	default POSIX_DELAYTIMER_MAX if POSIX_TIMERS
@@ -291,6 +283,7 @@ config TIMER_DELAYTIMER_MAX
 	  This option is deprecated.
 
 	  Please use CONFIG_POSIX_DELAYTIMER_MAX instead.
+endif
 
 config SEM_NAMELEN_MAX
 	int "Maximum name length [DEPRECATED]"
