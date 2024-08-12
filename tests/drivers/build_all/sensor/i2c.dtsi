@@ -1096,3 +1096,12 @@ test_i2c_bmp180: bmp180@94 {
 	reg = <0x94>;
 	osr-press = <0x01>;
 };
+
+test_i2c_tmp435: tmp435@95 {
+	compatible = "ti,tmp435";
+	reg = <0x95>;
+	external-channel;
+	resistance-correction;
+	beta-compensation = <0x0f>;
+	status = "okay";
+};
