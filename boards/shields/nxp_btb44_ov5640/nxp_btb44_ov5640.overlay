@@ -21,7 +21,10 @@
 
 		port {
 			ov5640_ep_out: endpoint {
-				remote-endpoint = <&mipi_csi2rx_ep_in>;
+				compatible = "zephyr,video-interfaces";
+				remote-endpoint-label = "mipi_csi2rx_ep_in";
+				bus-type = "mipi-csi2-dphy";
+				data-lanes = <1 2>;
 			};
 		};
 	};
@@ -37,7 +40,9 @@
 			reg = <1>;
 
 			mipi_csi2rx_ep_in: endpoint {
-				remote-endpoint = <&ov5640_ep_out>;
+				compatible = "zephyr,video-interfaces";
+				remote-endpoint-label = "ov5640_ep_out";
+				data-lanes = <1 2>;
 			};
 		};
 	};
