@@ -63,8 +63,8 @@
 			#clock-cells = <0>;
 
 			/* PLL */
-			source = <RA_PLL_SOURCE_MAIN_OSC>;
-			div = <RA_PLL_DIV_2>;
+			clocks = <&xtal>;
+			div = <2>;
 			mul = <8 0>;
 			status = "disabled";
 		};
@@ -93,47 +93,47 @@
 				    "MSTPD";
 			compatible = "renesas,ra-cgc-pclk-block";
 			#clock-cells = <0>;
-			sysclock-src = <RA_CLOCK_SOURCE_MOCO>;
+			clocks = <&moco>;
 			status = "okay";
 
 			iclk: iclk {
 				compatible = "renesas,ra-cgc-pclk";
-				clk_div = <RA_SYS_CLOCK_DIV_16>;
+				div = <16>;
 				#clock-cells = <2>;
 				status = "okay";
 			};
 
 			pclka: pclka {
 				compatible = "renesas,ra-cgc-pclk";
-				clk_div = <RA_SYS_CLOCK_DIV_16>;
+				div = <16>;
 				#clock-cells = <2>;
 				status = "okay";
 			};
 
 			pclkb: pclkb {
 				compatible = "renesas,ra-cgc-pclk";
-				clk_div = <RA_SYS_CLOCK_DIV_16>;
+				div = <16>;
 				#clock-cells = <2>;
 				status = "okay";
 			};
 
 			pclkc: pclkc {
 				compatible = "renesas,ra-cgc-pclk";
-				clk_div = <RA_SYS_CLOCK_DIV_1>;
+				div = <1>;
 				#clock-cells = <2>;
 				status = "okay";
 			};
 
 			pclkd: pclkd {
 				compatible = "renesas,ra-cgc-pclk";
-				clk_div = <RA_SYS_CLOCK_DIV_16>;
+				div = <16>;
 				#clock-cells = <2>;
 				status = "okay";
 			};
 
 			fclk: fclk {
 				compatible = "renesas,ra-cgc-pclk";
-				clk_div = <RA_SYS_CLOCK_DIV_16>;
+				div = <16>;
 				#clock-cells = <2>;
 				status = "okay";
 			};
