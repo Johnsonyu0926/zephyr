@@ -74,6 +74,9 @@ static void it8801_gpio_alert_worker(struct k_work *work)
 		 * will scan all the subdevices, and call the subdevice handler
 		 * to determine which device was triggered.
 		 */
+#ifdef CONFIG_INPUT_ITE_IT8801_KBD
+		it8801_input_alert_handler(config->sub_mfd_dev[i]);
+#endif
 	}
 }
 

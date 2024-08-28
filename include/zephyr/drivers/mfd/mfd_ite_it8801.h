@@ -117,6 +117,8 @@ static const struct it8801_vendor_id_t it8801_id_verify[] = {
 int mfd_it8801_configure_pins(const struct i2c_dt_spec *i2c_dev, const struct device *dev,
 			      uint8_t pin, uint8_t func);
 
+void it8801_input_alert_handler(const struct device *dev);
+
 #ifdef __cplusplus
 }
 #endif
