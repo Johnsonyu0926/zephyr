@@ -20,6 +20,7 @@ extern "C" {
 /* 0xfb: Gather interrupt enable control register */
 #define IT8801_REG_GIECR            0xfb
 #define IT8801_REG_MASK_GKSIIE      BIT(3)
+#define IT8801_REG_MASK_GGPIOIE     BIT(2)
 
 /*
  * General control register fields
@@ -118,6 +119,8 @@ int mfd_it8801_configure_pins(const struct i2c_dt_spec *i2c_dev, const struct de
 			      uint8_t pin, uint8_t func);
 
 void it8801_input_alert_handler(const struct device *dev);
+
+void it8801_gpio_alert_handler(const struct device *dev);
 
 #ifdef __cplusplus
 }

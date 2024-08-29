@@ -77,6 +77,9 @@ static void it8801_gpio_alert_worker(struct k_work *work)
 #ifdef CONFIG_INPUT_ITE_IT8801_KBD
 		it8801_input_alert_handler(config->sub_mfd_dev[i]);
 #endif
+#ifdef CONFIG_GPIO_ITE_IT8801
+		it8801_gpio_alert_handler(config->sub_mfd_dev[i]);
+#endif
 	}
 }
 
