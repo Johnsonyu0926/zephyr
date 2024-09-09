@@ -48,7 +48,7 @@ int main(void)
 
 		k_msleep(1);
 		for (int i = 0; i < 10000; i++) {
-			rc = mctp_uart_poll(mctp_host);
+			rc = mctp_uart_poll(&mctp_host);
 		}
 		k_msleep(1000);
 	}
