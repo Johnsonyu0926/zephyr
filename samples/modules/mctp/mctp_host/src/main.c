@@ -10,7 +10,7 @@
 #include <zephyr/types.h>
 #include <zephyr/kernel.h>
 #include <libmctp.h>
-#include <libmctp-serial.h>
+#include <zephyr/mctp/mctp_uart.h>
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(mctp_host);
@@ -27,25 +27,19 @@ static void rx_message(uint8_t eid, bool tag_owner,
 		msg_tag, len);
 }
 
-const struct device *uart = DEVICE_DT_GET(DT_NODELABEL(arduino_serial));
+MCTP_UART_DT_DEFINE(mctp_host, DEVICE_DT_GET(DT_NODELABEL(arduino_serial)));
 
 int main(void)
 {
 	printf("Hello MCTP! %s\n", CONFIG_BOARD_TARGET);
 
 	int rc;
-	struct mctp_binding_serial *serial;
 	struct mctp *mctp_ctx;
 
 	mctp_ctx = mctp_init();
 	assert(mctp_ctx != NULL);
 
-	serial = mctp_serial_init();
-	assert(serial);
-
-	mctp_serial_open(serial, uart);
-
-	mctp_register_bus(mctp_ctx, mctp_binding_serial_core(serial), LOCAL_HELLO_EID);
+	mctp_register_bus(mctp_ctx, &mctp_host.binding, LOCAL_HELLO_EID);
 	mctp_set_rx_all(mctp_ctx, rx_message, NULL);
 
 	/* MCTP poll loop, send "hello" and get "world" back */
@@ -54,7 +48,7 @@ int main(void)
 
 		k_msleep(1);
 		for (int i = 0; i < 10000; i++) {
-			rc = mctp_serial_read(serial);
+			rc = mctp_uart_poll(mctp_host);
 		}
 		k_msleep(1000);
 	}
