@@ -15,7 +15,7 @@
 /**
  * @brief An MCTP binding for Zephyr's polling UART interface
  */
-struct mctp_uart {
+struct mctp_binding_uart {
 	/** @cond INTERNAL_HIDDEN */
 	struct mctp_binding binding;
 	const struct device *dev;
@@ -57,7 +57,7 @@ struct mctp_uart {
  * @retval 0 success
  * @retval -errno Error
  */
-int mctp_uart_poll(struct mctpt_binding_uart *uart);
+int mctp_uart_poll(struct mctp_binding_uart *uart);
 
 /** @cond INTERNAL_HIDDEN */
 int mctp_uart_start(struct mctp_binding *binding);
