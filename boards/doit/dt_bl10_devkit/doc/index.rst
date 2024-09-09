@@ -73,49 +73,8 @@ The dt_bl10_devkit_ uses UART0 as default serial port.  It is connected to
 USB Serial converter and port is used for both program and console.
 
 
-Programming and Debugging
-*************************
-
-BL Flash tool
-=============
-
-The BL-602 have a ROM bootloader that allows user flash device by serial port.
-There are some tools available at internet and this will describe one of them.
-The below guide was created based on RISC-V BL602 Book, chapter 3
-`Flashing Firmware to BL602`_.
-
-#. `Install Rustup`_
-
-#. Clone blflash rust version
-
-   .. code-block:: console
-
-      $ git clone --recursive https://github.com/spacemeowx2/blflash
-
-#. Build blflash
-
-   .. code-block:: console
-
-      $ cd blflash
-      $ cargo build --release
-
-#. Install blflash. The recommended use is copy to home folder
-
-   .. code-block:: console
-
-      $ cp blflash ~/bin/
-
-#. Test
-
-   .. code-block:: console
-
-      $ blflash -V
-
-   It will print blflash version
-
-   .. code-block:: console
-
-      $ blflash 0.3.3
+Programming
+***********
 
 Samples
 =======
@@ -129,7 +88,7 @@ application:
       :goals: build
       :compact:
 
-#. To flash an image using blflash runner:
+#. To flash an image using bflb_mcu_tool runner:
 
    #. Press D8 button
 
@@ -139,7 +98,7 @@ application:
 
    .. code-block:: console
 
-      west flash -r blflash
+      west flash
 
 #. Run your favorite terminal program to listen for output. Under Linux the
    terminal should be :code:`/dev/ttyUSB0`. For example:
