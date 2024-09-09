@@ -70,18 +70,18 @@ int mctp_uart_tx(struct mctp_binding *binding, struct mctp_pktbuf *pkt);
  * @param name Symbolic name of the bus binding variable
  * @param dt_node Devicetree node
  */
-#define MCTP_UART_DT_DEFINE(name, dt_node)                                                         \
-	struct mctp_uart name = {                                                                  \
+#define MCTP_UART_DT_DEFINE(_name, dt_node)                                                        \
+	struct mctp_binding_uart _name = {                                                         \
 		.binding =                                                                         \
 			{                                                                          \
-				.name = STRINGIFY(name), .version = 1,                             \
+				.name = STRINGIFY(_name), .version = 1,                            \
 						  .pkt_size = MCTP_PACKET_SIZE(MCTP_BTU),          \
 						  .pkt_header = 0, .pkt_trailer = 0,               \
 						  .start = mctp_uart_start, .tx = mctp_uart_tx,    \
 				},                                                                 \
-				.dev = DEVICE_DT_GET(dt_node),                                     \
+				.dev = dt_node,                                                    \
 				.rx_state = STATE_WAIT_SYNC_START,                                 \
-				.rx_pkg = NULL,                                                    \
+				.rx_pkt = NULL,                                                    \
 	};
 
 #endif /* ZEPHYR_MCTP_UART_H_ */
