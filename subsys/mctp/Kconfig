@@ -8,7 +8,7 @@ menuconfig MCTP
 
 if MCTP
 
-choice MCTP_UART
+config MCTP_UART
 	bool "MCTP UART Binding"
 	help
 	  Build the MCTP UART binding to use MCTP over Zephyr's polled UART
