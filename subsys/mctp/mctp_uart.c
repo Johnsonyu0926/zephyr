@@ -8,9 +8,15 @@
 #include <zephyr/sys/__assert.h>
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/uart.h>
+#include <zephyr/mctp/mctp_uart.h>
+#include <crc-16-ccitt.h>
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_REGISTER(mctp_uart, CONFIG_MCTP_LOG_LEVEL);
+
+#define MCTP_UART_REVISION	 0x01
+#define MCTP_UART_FRAMING_FLAG 0x7e
+#define MCTP_UART_ESCAPE	 0x7d
 
 static inline struct mctp_binding_uart *binding_to_uart(struct mctp_binding *b)
 {
@@ -83,7 +89,7 @@ static void mctp_uart_consume(struct mctp_binding_uart *uart, uint8_t c)
 
 	switch (uart->rx_state) {
 	case STATE_WAIT_SYNC_START:
-		if (c != MCTP_SERIAL_FRAMING_FLAG) {
+		if (c != MCTP_UART_FRAMING_FLAG) {
 			LOG_DBG("lost sync, dropping packet");
 			if (pkt)
 				mctp_uart_finish_pkt(uart, false);
@@ -93,10 +99,10 @@ static void mctp_uart_consume(struct mctp_binding_uart *uart, uint8_t c)
 		break;
 
 	case STATE_WAIT_REVISION:
-		if (c == MCTP_SERIAL_REVISION) {
+		if (c == MCTP_UART_REVISION) {
 			uart->rx_state = STATE_WAIT_LEN;
 			uart->rx_fcs_calc = crc_16_ccitt_byte(FCS_INIT_16, c);
-		} else if (c == MCTP_SERIAL_FRAMING_FLAG) {
+		} else if (c == MCTP_UART_FRAMING_FLAG) {
 			/* Handle the case where there are bytes dropped in request,
 			 * and the state machine is out of sync. The failed request's
 			 * trailing footer i.e. 0x7e would be interpreted as next
@@ -104,19 +110,19 @@ static void mctp_uart_consume(struct mctp_binding_uart *uart, uint8_t c)
 			 * and receive 0x7e byte, then contine to stay in
 			 * STATE_WAIT_REVISION
 			 */
-			LOG_DEBUG(
+			LOG_DBG(
 				"Received serial framing flag 0x%02x while waiting"
 				" for serial revision 0x%02x.",
-				c, MCTP_SERIAL_REVISION);
+				c, MCTP_UART_REVISION);
 		} else {
-			LOG_DEBUG("invalid revision 0x%02x", c);
+			LOG_DBG("invalid revision 0x%02x", c);
 			uart->rx_state = STATE_WAIT_SYNC_START;
 		}
 		break;
 	case STATE_WAIT_LEN:
 		if (c > uart->binding.pkt_size ||
 		    c < sizeof(struct mctp_hdr)) {
-			LOG_DEBUG("invalid size %d", c);
+			LOG_DBG("invalid size %d", c);
 			uart->rx_state = STATE_WAIT_SYNC_START;
 		} else {
 			mctp_uart_start_pkt(uart, 0);
@@ -129,7 +135,7 @@ static void mctp_uart_consume(struct mctp_binding_uart *uart, uint8_t c)
 		break;
 
 	case STATE_DATA:
-		if (c == MCTP_SERIAL_ESCAPE) {
+		if (c == MCTP_UART_ESCAPE) {
 			uart->rx_state = STATE_DATA_ESCAPED;
 		} else {
 			mctp_pktbuf_push(pkt, &c, 1);
@@ -161,15 +167,15 @@ static void mctp_uart_consume(struct mctp_binding_uart *uart, uint8_t c)
 
 	case STATE_WAIT_SYNC_END:
 		if (uart->rx_fcs == uart->rx_fcs_calc) {
-			if (c == MCTP_SERIAL_FRAMING_FLAG) {
+			if (c == MCTP_UART_FRAMING_FLAG) {
 				valid = true;
 			} else {
 				valid = false;
-				LOG_DEBUG("missing end frame marker");
+				LOG_DBG("missing end frame marker");
 			}
 		} else {
 			valid = false;
-			LOG_DEBUG("invalid fcs : 0x%04x, expect 0x%04x",
+			LOG_DBG("invalid fcs : 0x%04x, expect 0x%04x",
 				     uart->rx_fcs, uart->rx_fcs_calc);
 		}
 
@@ -178,14 +184,14 @@ static void mctp_uart_consume(struct mctp_binding_uart *uart, uint8_t c)
 		break;
 	}
 
-	LOG_DEBUG(" -> state: %d", uart->rx_state);
+	LOG_DBG(" -> state: %d", uart->rx_state);
 }
 
 int mctp_uart_poll(struct mctp_binding *binding)
 {
 	int res;
 	char in;
-	struct mctp_uart_binding *uart = binding_to_uart(binding);
+	struct mctp_binding_uart *uart = binding_to_uart(binding);
 
 
 	res = uart_poll_in(uart->dev, &in);
@@ -213,8 +219,8 @@ int mctp_uart_tx(struct mctp_binding *b, struct mctp_pktbuf *pkt)
 	len = mctp_pktbuf_size(pkt);
 
 	hdr = (void *)uart->txbuf;
-	hdr->flag = MCTP_SERIAL_FRAMING_FLAG;
-	hdr->revision = MCTP_SERIAL_REVISION;
+	hdr->flag = MCTP_UART_FRAMING_FLAG;
+	hdr->revision = MCTP_UART_REVISION;
 	hdr->len = len;
 
 	/* Calculate fcs */
@@ -223,16 +229,16 @@ int mctp_uart_tx(struct mctp_binding *b, struct mctp_pktbuf *pkt)
 
 	buf = (void *)(hdr + 1);
 
-	len = mctp_serial_pkt_escape(pkt, NULL);
+	len = mctp_uart_pkt_escape(pkt, NULL);
 	if (len + sizeof(*hdr) + sizeof(*tlr) > sizeof(uart->txbuf))
 		return -EMSGSIZE;
 
-	mctp_serial_pkt_escape(pkt, buf);
+	mctp_uart_pkt_escape(pkt, buf);
 
 	buf += len;
 
 	tlr = (void *)buf;
-	tlr->flag = MCTP_SERIAL_FRAMING_FLAG;
+	tlr->flag = MCTP_UART_FRAMING_FLAG;
 	tlr->fcs_msb = fcs >> 8;
 	tlr->fcs_lsb = fcs & 0xff;
 
