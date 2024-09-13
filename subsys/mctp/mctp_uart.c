@@ -18,6 +18,18 @@ LOG_MODULE_REGISTER(mctp_uart, CONFIG_MCTP_LOG_LEVEL);
 #define MCTP_UART_FRAMING_FLAG 0x7e
 #define MCTP_UART_ESCAPE	 0x7d
 
+struct mctp_serial_header {
+	uint8_t flag;
+	uint8_t revision;
+	uint8_t len;
+};
+
+struct mctp_serial_trailer {
+	uint8_t fcs_msb;
+	uint8_t fcs_lsb;
+	uint8_t flag;
+};
+
 static inline struct mctp_binding_uart *binding_to_uart(struct mctp_binding *b)
 {
 	return (struct mctp_binding_uart *)b;
@@ -187,21 +199,18 @@ static void mctp_uart_consume(struct mctp_binding_uart *uart, uint8_t c)
 	LOG_DBG(" -> state: %d", uart->rx_state);
 }
 
-int mctp_uart_poll(struct mctp_binding *binding)
+int mctp_uart_poll(struct mctp_binding_uart *uart)
 {
 	int res;
 	char in;
-	struct mctp_binding_uart *uart = binding_to_uart(binding);
-
 
 	res = uart_poll_in(uart->dev, &in);
-
 	if (res != 0) {
 		LOG_ERR("failed polling uart, %d", res);
 		return res;
 	}
-
-	return mctp_uart_consume(uart, in);
+	mctp_uart_consume(uart, in);
+	return 0;
 }
 
 int mctp_uart_tx(struct mctp_binding *b, struct mctp_pktbuf *pkt)
