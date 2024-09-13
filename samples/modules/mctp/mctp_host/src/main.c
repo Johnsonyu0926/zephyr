@@ -42,7 +42,7 @@ int main(void)
 	mctp_register_bus(mctp_ctx, &mctp_host.binding, LOCAL_HELLO_EID);
 	mctp_set_rx_all(mctp_ctx, rx_message, NULL);
 
-	/* MCTP poll loop, send "hello" and get "world" back */
+	/* MCTP poll loop, send "hello" and get "world" back, needed as UART is polling */
 	while (true) {
 		mctp_message_tx(mctp_ctx, REMOTE_HELLO_EID, false, 0, "hello", sizeof("hello"));
 
