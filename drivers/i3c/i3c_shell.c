@@ -94,8 +94,8 @@ DT_FOREACH_STATUS_OKAY(nxp_mcux_i3c, I3C_CTRL_FN)
 const struct i3c_ctrl i3c_list[] = {
 	/* zephyr-keep-sorted-start */
 	DT_FOREACH_STATUS_OKAY(cdns_i3c, I3C_CTRL_LIST_ENTRY)
-	DT_FOREACH_STATUS_OKAY(nuvoton_npcx_i3c, I3C_CTRL_LIST_ENTRY)
-	DT_FOREACH_STATUS_OKAY(nxp_mcux_i3c, I3C_CTRL_LIST_ENTRY)
+		DT_FOREACH_STATUS_OKAY(nuvoton_npcx_i3c, I3C_CTRL_LIST_ENTRY)
+			DT_FOREACH_STATUS_OKAY(nxp_mcux_i3c, I3C_CTRL_LIST_ENTRY)
 	/* zephyr-keep-sorted-stop */
 };
 
@@ -1076,7 +1076,7 @@ static int cmd_i3c_ccc_getacccr(const struct shell *sh, size_t argc, char **argv
 	if ((i3c_odd_parity(handoff_address.addr >> 1) != (handoff_address.addr & BIT(0))) ||
 	    (handoff_address.addr >> 1 != desc->dynamic_addr)) {
 		shell_error(sh, "I3C: invalid returned address 0x%02x; expected 0x%02x",
-			handoff_address.addr, desc->dynamic_addr);
+			    handoff_address.addr, desc->dynamic_addr);
 		return -EIO;
 	}
 
