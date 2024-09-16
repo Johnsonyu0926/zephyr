@@ -20,8 +20,7 @@ LOG_MODULE_REGISTER(mctp_host);
 
 #define REMOTE_HELLO_EID 10
 
-static void rx_message(uint8_t eid, bool tag_owner,
-		       uint8_t msg_tag, void *data, void *msg,
+static void rx_message(uint8_t eid, bool tag_owner, uint8_t msg_tag, void *data, void *msg,
 		       size_t len)
 {
 	LOG_INF("received message %s for endpoint %d, msg_tag %d, len %zu", (char *)msg, eid,
@@ -46,13 +45,18 @@ int main(void)
 
 	/* MCTP poll loop, send "hello" and get "world" back, needed as UART is polling */
 	while (true) {
-		mctp_message_tx(mctp_ctx, REMOTE_HELLO_EID, false, 0, "hello", sizeof("hello"));
-
-		k_msleep(1);
-		for (int i = 0; i < 10000; i++) {
-			rc = mctp_uart_poll(&mctp_host);
+		rc = mctp_message_tx(mctp_ctx, REMOTE_HELLO_EID, false, 0, "hello",
+				     sizeof("hello"));
+		if (rc != 0) {
+			printf("Failed to send message, errno %d\n", rc);
+		} else {
+			k_msleep(1);
+			for (int i = 0; i < 10000; i++) {
+				rc = mctp_uart_poll(&mctp_host);
+			}
 		}
 		k_msleep(1000);
+		rc = 0;
 	}
 
 	return 0;
