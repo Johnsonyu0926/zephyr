@@ -53,6 +53,7 @@ static void mctp_uart_start_pkt(struct mctp_binding_uart *uart,
 				uint8_t len)
 {
 	uart->rx_pkt = mctp_pktbuf_alloc(&uart->binding, len);
+	__ASSERT_NO_MSG(uart->rx_pkt);
 }
 
 static size_t mctp_uart_pkt_escape(struct mctp_pktbuf *pkt, uint8_t *buf)
@@ -205,8 +206,8 @@ int mctp_uart_poll(struct mctp_binding_uart *uart)
 	char in;
 
 	res = uart_poll_in(uart->dev, &in);
+	/* No input available if not 0 */
 	if (res != 0) {
-		LOG_ERR("failed polling uart, %d", res);
 		return res;
 	}
 	mctp_uart_consume(uart, in);
