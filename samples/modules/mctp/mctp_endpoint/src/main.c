@@ -60,10 +60,7 @@ int main(void)
 
 	/* MCTP poll loop, needed as UART is polling */
 	while (true) {
-		for (int i = 0; i < 10000; i++) {
-			rc = mctp_uart_poll(&mctp_endpoint);
-		}
-		k_msleep(1000);
+		mctp_uart_poll(&mctp_endpoint);
 	}
 
 	LOG_INF("exiting");

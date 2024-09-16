@@ -49,13 +49,15 @@ int main(void)
 				     sizeof("hello"));
 		if (rc != 0) {
 			printf("Failed to send message, errno %d\n", rc);
+			k_msleep(1000);
 		} else {
-			k_msleep(1);
-			for (int i = 0; i < 10000; i++) {
+			while (true) {
 				rc = mctp_uart_poll(&mctp_host);
+				if (rc != 0) {
+					break;
+				}
 			}
 		}
-		k_msleep(1000);
 		rc = 0;
 	}
 
