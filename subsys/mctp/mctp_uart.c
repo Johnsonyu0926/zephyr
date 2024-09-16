@@ -253,12 +253,16 @@ int mctp_uart_tx(struct mctp_binding *b, struct mctp_pktbuf *pkt)
 
 	len += sizeof(*hdr) + sizeof(*tlr);
 
-	/* TODO fix this to use uart_poll_out */
-	/* return mctp_write_all(uart->tx_fn, uart->tx_fn_data, &uart->txbuf[0], len); */
-	return 0;
+	int ret;
+
+	for (int i = 0; i < len; i++) {
+		uart_poll_out(uart->dev, uart->txbuf[i]);
+	}
+	return ret;
 }
 
 int mctp_uart_start(struct mctp_binding *binding)
 {
+	mctp_binding_set_tx_enabled(binding, true);
 	return 0;
 }
