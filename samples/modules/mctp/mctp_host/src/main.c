@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
 #include <unistd.h>
@@ -36,6 +37,7 @@ int main(void)
 	int rc;
 	struct mctp *mctp_ctx;
 
+	mctp_set_alloc_ops(malloc, free, realloc);
 	mctp_ctx = mctp_init();
 	assert(mctp_ctx != NULL);
 
