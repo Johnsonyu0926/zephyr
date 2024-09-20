@@ -366,9 +366,9 @@ static const struct counter_driver_api nxp_pit_driver_api = {
 	};											\
 												\
 	/* Init parent device in order to handle ISR and init. */				\
-	DEVICE_DT_INST_DEFINE(n, &nxp_pit_init, NULL,						\
+	DEVICE_INSTANCE_FROM_DT_INST(n, &nxp_pit_init, NULL,					\
 			NULL, &nxp_pit_##n##_config, POST_KERNEL,				\
-			CONFIG_COUNTER_INIT_PRIORITY, NULL);
+			NULL);
 
 
 DT_INST_FOREACH_STATUS_OKAY(COUNTER_NXP_PIT_DEVICE_INIT)

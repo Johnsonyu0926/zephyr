@@ -647,7 +647,6 @@ static const struct ieee802154_radio_api b91_radio_api = {
 NET_DEVICE_INSTANCE_FROM_DT_INST(0, b91_init, NULL, &data, NULL,
 			  &b91_radio_api, L2, L2_CTX_TYPE, MTU);
 #else
-DEVICE_DT_INST_DEFINE(0, b91_init, NULL, &data, NULL,
-		      POST_KERNEL, CONFIG_IEEE802154_B91_INIT_PRIO,
-		      &b91_radio_api);
+DEVICE_INSTANCE_FROM_DT_INST(0, b91_init, NULL, &data, NULL,
+		      POST_KERNEL, &b91_radio_api);
 #endif

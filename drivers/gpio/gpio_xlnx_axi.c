@@ -450,8 +450,8 @@ static const struct gpio_driver_api gpio_xlnx_axi_driver_api = {
 			   irq_enable(DT_INST_IRQN(n));                                            \
 		   }))                                                                             \
                                                                                                    \
-	DEVICE_DT_INST_DEFINE(n, gpio_xlnx_axi_init, NULL, &gpio_xlnx_axi_##n##_data,              \
+	DEVICE_INSTANCE_FROM_DT_INST(n, gpio_xlnx_axi_init, NULL, &gpio_xlnx_axi_##n##_data,       \
 			      &gpio_xlnx_axi_##n##_config, PRE_KERNEL_1,                           \
-			      CONFIG_GPIO_INIT_PRIORITY, &gpio_xlnx_axi_driver_api);
+			      &gpio_xlnx_axi_driver_api);
 
 DT_INST_FOREACH_STATUS_OKAY(GPIO_XLNX_AXI_INIT)
