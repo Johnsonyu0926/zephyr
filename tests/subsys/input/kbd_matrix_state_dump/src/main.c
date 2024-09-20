@@ -16,9 +16,9 @@ static const struct input_kbd_matrix_common_config test_cfg = {
 	.col_size = 4,
 };
 
-DEVICE_DEFINE(kbd_matrix, "kbd-matrix", NULL, NULL,
+DEVICE_INSTANCE(kbd_matrix, NULL, NULL,
 	     NULL,  &test_cfg,
-	     POST_KERNEL, CONFIG_KERNEL_INIT_PRIORITY_DEVICE, NULL);
+	     POST_KERNEL, NULL);
 
 static void report_matrix_entry(int row, int col, int val)
 {
