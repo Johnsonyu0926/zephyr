@@ -15,12 +15,13 @@ on the MPS3 board. It provides support for the following devices:
 - Cortex-M System Design Kit UART
 - Ethos-U55 NPU
 - AN547 and AN552 support Arm Cortex-M55 CPU
+- AN555 support Arm Cortex-M85 CPU
 
 .. image:: img/mps3.jpg
      :align: center
      :alt: ARM MPS3
 
-`Corstone-300 FVP`_ (Fixed Virtual Platforms) is a complete
+`Corstone-300 FVP`_/`Corstone-310 FVP`_ (Fixed Virtual Platforms) is a complete
 simulations of the Arm system, including processor, memory and peripherals.
 They are available free of charge for Linux and Windows systems.
 The FVPs have been selected for simulation since they provide access to the
@@ -102,9 +103,41 @@ Zephyr board options
    QEMU Usage:
     - QEMU not supported for this variant of board.
 
+  .. tab:: MPS3 AN555
+
+   The MPS3+ AN555 is an SoC with Cortex-M85 architecture. Zephyr provides support
+   for building for both Secure and Non-Secure firmware.
+
+   The BOARD options are summarized below:
+
+   +-------------------------------+-----------------------------------------------+
+   |   BOARD                       | Description                                   |
+   +===============================+===============================================+
+   | ``mps3/corstone310/an555``    | For building Secure (or Secure-only) firmware |
+   +-------------------------------+-----------------------------------------------+
+   | ``mps3/corstone310/an555/ns`` | For building Non-Secure firmware              |
+   +-------------------------------+-----------------------------------------------+
+
+   FVP Usage:
+
+   To run with the FVP, first set environment variable ``ARMFVP_BIN_PATH`` before
+   using it. Then you can run it with ``west build -t run``.
+
+   .. code-block:: bash
+
+      export ARMFVP_BIN_PATH=/path/to/fvp/directory
+      west build -t run
+
+   To run the Fixed Virtual Platform simulation tool you must download "FVP model
+   for the Corstone-310 MPS3" from Arm and install it on your host PC. This board
+   has been tested with version 11.24.13 (Jan  4 2024).
+
+   QEMU Usage:
+    - QEMU not supported for this variant of board.
+
   .. note::
      Board qualifier must include the board name as mentioned above.
-     ``mps3/corstone300`` without the board name is not a valid qualifier.
+     ``mps3/corstone300`` or ``mps3/corstone310`` without the board name is not a valid qualifier.
 
 Hardware
 ********
@@ -115,6 +148,8 @@ ARM MPS3 provides the following hardware components:
 
   - AN547 and AN552 support Arm Cortex-M55 CPU and
     Soft Macro Model (SMM) implementation of SSE-300 subsystem
+  - AN555 support Arm Cortex-M85 CPU and
+    Soft Macro Model (SMM) implementation of SSE-310 subsystem
 
 - Memory
 
@@ -171,6 +206,7 @@ features.
 The default configuration can be found in
  - For AN547: :zephyr_file:`boards/arm/mps3/mps3_corstone300_an547_defconfig`.
  - For AN552: :zephyr_file:`boards/arm/mps3/mps3_corstone300_an552_defconfig`.
+ - For AN555: :zephyr_file:`boards/arm/mps3/mps3_corstone310_an555_defconfig`.
 
 
 Serial Port
@@ -263,11 +299,17 @@ serial port:
 For more details refer to:
  - `MPS3 AN547 Technical Reference Manual (TRM)`_
  - `MPS3 AN552 Technical Reference Manual (TRM)`_
+ - `MPS3 AN555 Technical Reference Manual (TRM)`_
  - `MPS3 FPGA Prototyping Board Technical Reference Manual (TRM)`_
  - `Cortex M55 Generic User Guide`_
+ - `Cortex M85 Generic User Guide`_
  - `Corelink SSE-300 Example Subsystem`_
+ - `Corelink SSE-310 Example Subsystem`_
 
 .. _Corstone-300 FVP:
+   https://developer.arm.com/tools-and-software/open-source-software/arm-platforms-software/arm-ecosystem-fvps
+
+.. _Corstone-310 FVP:
    https://developer.arm.com/tools-and-software/open-source-software/arm-platforms-software/arm-ecosystem-fvps
 
 .. _MPS3 FPGA Website:
@@ -279,11 +321,20 @@ For more details refer to:
 .. _MPS3 AN552 Technical Reference Manual (TRM):
    https://developer.arm.com/documentation/dai0552/latest
 
+.. _MPS3 AN555 Technical Reference Manual (TRM):
+   https://developer.arm.com/documentation/107642/latest
+
 .. _MPS3 FPGA Prototyping Board Technical Reference Manual (TRM):
    https://developer.arm.com/documentation/100765/latest
 
 .. _Cortex M55 Generic User Guide:
    https://developer.arm.com/documentation/101051/latest
 
+.. _Cortex M85 Generic User Guide:
+   https://developer.arm.com/documentation/101924/latest
+
 .. _Corelink SSE-300 Example Subsystem:
    https://developer.arm.com/documentation/101772/latest
+
+.. _Corelink SSE-310 Example Subsystem:
+   https://developer.arm.com/documentation/102778/latest

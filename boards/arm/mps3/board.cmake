@@ -35,6 +35,13 @@ elseif(CONFIG_BOARD_MPS3_CORSTONE300)
   string(REPLACE "mps3/corstone300;" "" board_targets "${board_targets}")
   string(REPLACE ";" "\n" board_targets "${board_targets}")
   message(FATAL_ERROR "Please use a target from the list below: \n${board_targets}\n")
+elseif(CONFIG_BOARD_MPS3_CORSTONE310_AN555 OR CONFIG_BOARD_MPS3_CORSTONE310_AN555_NS)
+  set(SUPPORTED_EMU_PLATFORMS armfvp)
+  set(ARMFVP_BIN_NAME FVP_Corstone_SSE-310)
+  set(ARMFVP_FLAGS
+    # default is '0x11000000' but should match cpu<i>.INITSVTOR which is 0.
+    -C mps3_board.sse300.iotss3_systemcontrol.INITSVTOR_RST=0
+  )
 endif()
 
 board_set_debugger_ifnset(qemu)
@@ -50,7 +57,7 @@ endif()
 # -C indicate a config option in the form of:
 #   instance.parameter=value
 # Run the FVP with --list-params to list all options
-set(ARMFVP_FLAGS
+set(ARMFVP_FLAGS ${ARMFVP_FLAGS}
   -C mps3_board.uart0.out_file=-
   -C mps3_board.uart0.unbuffered_output=1
   -C mps3_board.uart1.out_file=-

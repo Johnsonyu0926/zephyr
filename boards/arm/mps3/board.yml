@@ -10,3 +10,8 @@ board:
     - name: 'an552'
       variants:
       - name: 'ns'
+  - name: 'corstone310'
+    variants:
+    - name: 'an555'
+      variants:
+      - name: 'ns'
