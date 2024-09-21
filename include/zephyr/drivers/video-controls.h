@@ -58,30 +58,44 @@ extern "C" {
  */
 
 /**
- * @name Generic class control IDs
+ * @name Base class control IDs
  * @{
  */
-/** Mirror the picture horizontally */
+#define VIDEO_CID_CAMERA_BRIGHTNESS	(VIDEO_CTRL_CLASS_BASE + 0)
+#define VIDEO_CID_CAMERA_CONTRAST	(VIDEO_CTRL_CLASS_BASE + 1)
+#define VIDEO_CID_CAMERA_SATURATION	(VIDEO_CTRL_CLASS_BASE + 2)
+#define VIDEO_CID_CAMERA_EXPOSURE	(VIDEO_CTRL_CLASS_BASE + 17)
+#define VIDEO_CID_CAMERA_GAIN		(VIDEO_CTRL_CLASS_BASE + 19)
 #define VIDEO_CID_HFLIP			(VIDEO_CTRL_CLASS_BASE + 20)
-/** Mirror the picture vertically */
 #define VIDEO_CID_VFLIP			(VIDEO_CTRL_CLASS_BASE + 21)
+#define VIDEO_CID_CAMERA_WHITE_BAL	(VIDEO_CTRL_CLASS_BASE + 26)
 /**
  * @}
  */
 
 /**
- * @name Camera class control IDs
+ * @name Camera class controls IDs
  * @{
  */
-#define VIDEO_CID_CAMERA_EXPOSURE	(VIDEO_CTRL_CLASS_BASE + 17)
-#define VIDEO_CID_CAMERA_GAIN		(VIDEO_CTRL_CLASS_BASE + 19)
 #define VIDEO_CID_CAMERA_ZOOM		(VIDEO_CTRL_CLASS_CAMERA_BASE + 13)
-#define VIDEO_CID_CAMERA_BRIGHTNESS	(VIDEO_CTRL_CLASS_BASE + 0)
-#define VIDEO_CID_CAMERA_SATURATION	(VIDEO_CTRL_CLASS_BASE + 2)
-#define VIDEO_CID_CAMERA_WHITE_BAL	(VIDEO_CTRL_CLASS_BASE + 26)
-#define VIDEO_CID_CAMERA_CONTRAST	(VIDEO_CTRL_CLASS_BASE + 1)
-#define VIDEO_CID_CAMERA_COLORBAR	(VIDEO_CTRL_CLASS_IMAGE_PROC_BASE + 3)
+/**
+ * @}
+ */
+
+/**
+ * @name JPEG class control IDs
+ * @{
+ */
 #define VIDEO_CID_CAMERA_QUALITY	(VIDEO_CTRL_CLASS_JPEG_BASE + 3)
+/**
+ * @}
+ */
+
+/**
+ * @name Image Processing class control IDs
+ * @{
+ */
+#define VIDEO_CID_CAMERA_COLORBAR	(VIDEO_CTRL_CLASS_IMAGE_PROC_BASE + 3)
 /**
  * @}
  */
