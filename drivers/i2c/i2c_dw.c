@@ -642,6 +642,10 @@ static int i2c_dw_transfer(const struct device *dev,
 		return 0;
 	}
 
+	if (!i2c_is_stop_op(&msgs[num_msgs - 1])) {
+		return -EINVAL;
+	}
+
 	ret = k_mutex_lock(&dw->bus_mutex, K_FOREVER);
 	if (ret != 0) {
 		return ret;

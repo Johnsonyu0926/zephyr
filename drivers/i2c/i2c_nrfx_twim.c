@@ -26,6 +26,7 @@ LOG_MODULE_REGISTER(i2c_nrfx_twim, CONFIG_I2C_LOG_LEVEL);
 #endif
 
 struct i2c_nrfx_twim_data {
+	struct i2c_common_data common;
 	struct k_sem transfer_sync;
 	struct k_sem completion_sync;
 	volatile nrfx_err_t res;
@@ -363,7 +364,7 @@ static int i2c_nrfx_twim_init(const struct device *dev)
 	nrfx_twim_enable(&dev_config->twim);
 #endif
 
-	return 0;
+	return i2c_common_init(dev);
 }
 
 #define I2C_NRFX_TWIM_INVALID_FREQUENCY  ((nrf_twim_frequency_t)-1)
