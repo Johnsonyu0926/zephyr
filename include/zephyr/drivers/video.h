@@ -145,6 +145,11 @@ enum video_signal_result {
 	VIDEO_BUF_ERROR,
 };
 
+enum video_event {
+	VIDEO_EVENT_SOF,
+	VIDEO_EVENT_EOF,
+};
+
 /**
  * @typedef video_api_set_format_t
  * @brief Set video format
@@ -253,6 +258,8 @@ typedef int (*video_api_set_signal_t)(const struct device *dev,
 				      enum video_endpoint_id ep,
 				      struct k_poll_signal *signal);
 
+typedef int (*video_api_notify_event_t)(const struct device *dev, enum video_event event);
+
 __subsystem struct video_driver_api {
 	/* mandatory callbacks */
 	video_api_set_format_t set_format;
@@ -267,6 +274,7 @@ __subsystem struct video_driver_api {
 	video_api_set_ctrl_t set_ctrl;
 	video_api_set_ctrl_t get_ctrl;
 	video_api_set_signal_t set_signal;
+	video_api_notify_event_t notfiy_event;
 };
 
 /**
@@ -562,6 +570,27 @@ static inline int video_set_signal(const struct device *dev,
 	}
 
 	return api->set_signal(dev, ep, signal);
+}
+
+/**
+ * @brief Notify events.
+ *
+ * Notify the video device about an event.
+ *
+ * @param dev Pointer to the device structure for the driver instance.
+ * @param event Event ID.
+ *
+ * @retval 0 Is successful.
+ */
+static inline int video_notfiy_event(const struct device *dev, enum video_event event)
+{
+	const struct video_driver_api *api = (const struct video_driver_api *)dev->api;
+
+	if (api->notfiy_event == NULL) {
+		return -ENOSYS;
+	}
+
+	return api->notfiy_event(dev, event);
 }
 
 /**
