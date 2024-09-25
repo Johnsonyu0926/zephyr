@@ -127,6 +127,13 @@ static ALWAYS_INLINE void clock_init(void)
 #if (DT_NODE_HAS_COMPAT_STATUS(DT_NODELABEL(lpuart1), nxp_lpc_lpuart, okay))
 	CLOCK_EnableClock(kCLOCK_Lpuart1);
 #endif
+	if (DT_NODE_HAS_COMPAT_STATUS(DT_NODELABEL(lpi2c0), nxp_imx_lpi2c, okay)) {
+		CLOCK_EnableClock(kCLOCK_Lpi2c0);
+	}
+
+	if (DT_NODE_HAS_COMPAT_STATUS(DT_NODELABEL(lpi2c1), nxp_imx_lpi2c, okay)) {
+		CLOCK_EnableClock(kCLOCK_Lpi2c1);
+	}
 }
 
 static void vbat_init(void)
