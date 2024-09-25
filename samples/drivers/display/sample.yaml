@@ -94,7 +94,14 @@ tests:
     harness: console
     extra_args: SHIELD=rk055hdmipi4m
     harness_config:
-      fixture: fixture_display
+      fixture: fixture_display_rk055hdmipi4m
+  sample.display.mcux_hdmimipi:
+    platform_allow: mimxrt595_evk/mimxrt595s/cm33
+    tags: display
+    harness: console
+    extra_args: SHIELD=rk055hdmipi4ma0
+    harness_config:
+      fixture: fixture_display_rk055hdmipi4ma0
   sample.display.sdl:
     build_only: true
     platform_allow:
@@ -150,7 +157,7 @@ tests:
       - CONFIG_PM_DEVICE=y
       - CONFIG_IDLE_STACK_SIZE=400
     harness_config:
-      fixture: fixture_display
+      fixture: fixture_display_g1120b0mipi
   sample.display.builtin:
     # This test case is intended to insure that this sample builds & runs
     # correctly for all boards that have a supported built-in display.
@@ -179,7 +186,7 @@ tests:
     harness: console
     extra_args: SHIELD=rk043fn66hs_ctg
     harness_config:
-      fixture: fixture_display
+      fixture: fixture_display_rk043fn66hs_ctg
   sample.display.rk043fn02h_ct:
     platform_allow:
       - mimxrt1064_evk
@@ -190,4 +197,4 @@ tests:
     harness: console
     extra_args: SHIELD=rk043fn02h_ct
     harness_config:
-      fixture: fixture_display
+      fixture: fixture_display_rk043fn02h_ct
