@@ -12,7 +12,7 @@
 	model = "NXP FRDM-MCXW71 board";
 
 	aliases {
-		led0 = &green_led;
+		led0 = &blue_led;
 	};
 
 	chosen {
@@ -26,7 +26,7 @@
 
 	user_led {
 		compatible = "gpio-leds";
-		green_led: led {
+		blue_led: led {
 			gpios = <&gpioc 1 GPIO_ACTIVE_LOW>;
 		};
 	};
@@ -40,6 +40,12 @@
 	current-speed = <115200>;
 	status =  "okay";
 	pinctrl-0 = <&pinmux_lpuart1>;
+	pinctrl-names = "default";
+};
+
+&lpi2c1 {
+	status = "okay";
+	pinctrl-0 = <&pinmux_lpi2c1>;
 	pinctrl-names = "default";
 };
 
