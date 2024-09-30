@@ -2172,7 +2172,7 @@ MODEM_CHAT_SCRIPT_DEFINE(swir_hl7800_dial_chat_script, swir_hl7800_dial_chat_scr
 			 dial_abort_matches, modem_cellular_chat_callback_handler, 10);
 #endif
 
-#if DT_HAS_COMPAT_STATUS_OKAY(telit_me910g1)
+#if DT_HAS_COMPAT_STATUS_OKAY(telit_me910g1) || DT_HAS_COMPAT_STATUS_OKAY(telit_me310g1)
 MODEM_CHAT_SCRIPT_CMDS_DEFINE(telit_me910g1_init_chat_script_cmds,
 				  MODEM_CHAT_SCRIPT_CMD_RESP_NONE("AT", 100),
 				  MODEM_CHAT_SCRIPT_CMD_RESP_NONE("AT", 100),
@@ -2229,6 +2229,17 @@ MODEM_CHAT_SCRIPT_CMDS_DEFINE(telit_me910g1_periodic_chat_script_cmds,
 MODEM_CHAT_SCRIPT_DEFINE(telit_me910g1_periodic_chat_script,
 			 telit_me910g1_periodic_chat_script_cmds, abort_matches,
 			 modem_cellular_chat_callback_handler, 4);
+
+#endif
+
+#if DT_HAS_COMPAT_STATUS_OKAY(telit_me310g1)
+MODEM_CHAT_SCRIPT_CMDS_DEFINE(telit_me310g1_shutdown_chat_script_cmds,
+			      MODEM_CHAT_SCRIPT_CMD_RESP("AT#SHDN", ok_match));
+
+MODEM_CHAT_SCRIPT_DEFINE(telit_me310g1_shutdown_chat_script,
+			 telit_me310g1_shutdown_chat_script_cmds, abort_matches,
+			 modem_cellular_chat_callback_handler, 15);
+
 #endif
 
 #if DT_HAS_COMPAT_STATUS_OKAY(nordic_nrf91_slm)
@@ -2504,7 +2515,7 @@ MODEM_CHAT_SCRIPT_DEFINE(sqn_gm02s_periodic_chat_script,
 				       &u_blox_lara_r6_init_chat_script,                           \
 				       &u_blox_lara_r6_dial_chat_script,                           \
 				       &u_blox_lara_r6_periodic_chat_script,                       \
-				       NULL )
+				       NULL)
 
 #define MODEM_CELLULAR_DEVICE_SWIR_HL7800(inst)                                                    \
 	MODEM_PPP_DEFINE(MODEM_CELLULAR_INST_NAME(ppp, inst), NULL, 98, 1500, 64);                 \
@@ -2543,6 +2554,25 @@ MODEM_CHAT_SCRIPT_DEFINE(sqn_gm02s_periodic_chat_script,
 				       &telit_me910g1_dial_chat_script,                            \
 				       &telit_me910g1_periodic_chat_script,                        \
 				       NULL)
+
+#define MODEM_CELLULAR_DEVICE_TELIT_ME310G1(inst)                                                  \
+	MODEM_PPP_DEFINE(MODEM_CELLULAR_INST_NAME(ppp, inst), NULL, 98, 1500, 64);                 \
+                                                                                                   \
+	static struct modem_cellular_data MODEM_CELLULAR_INST_NAME(data, inst) = {                 \
+		.chat_delimiter = "\r",                                                            \
+		.chat_filter = "\n",                                                               \
+		.ppp = &MODEM_CELLULAR_INST_NAME(ppp, inst),                                       \
+	};                                                                                         \
+                                                                                                   \
+	MODEM_CELLULAR_DEFINE_AND_INIT_USER_PIPES(inst,                                            \
+						  (user_pipe_0, 3))                                \
+                                                                                                   \
+	MODEM_CELLULAR_DEFINE_INSTANCE(inst, 5050, 0 /* unused */, 1000, 15000, false,             \
+				       NULL,                                                       \
+				       &telit_me910g1_init_chat_script,                            \
+				       &telit_me910g1_dial_chat_script,                            \
+				       &telit_me910g1_periodic_chat_script,                        \
+				       &telit_me310g1_shutdown_chat_script)
 
 #define MODEM_CELLULAR_DEVICE_NORDIC_NRF91_SLM(inst)						   \
 	MODEM_PPP_DEFINE(MODEM_CELLULAR_INST_NAME(ppp, inst), NULL, 98, 1500, 1500);               \
@@ -2610,6 +2640,10 @@ DT_INST_FOREACH_STATUS_OKAY(MODEM_CELLULAR_DEVICE_SWIR_HL7800)
 
 #define DT_DRV_COMPAT telit_me910g1
 DT_INST_FOREACH_STATUS_OKAY(MODEM_CELLULAR_DEVICE_TELIT_ME910G1)
+#undef DT_DRV_COMPAT
+
+#define DT_DRV_COMPAT telit_me310g1
+DT_INST_FOREACH_STATUS_OKAY(MODEM_CELLULAR_DEVICE_TELIT_ME310G1)
 #undef DT_DRV_COMPAT
 
 #define DT_DRV_COMPAT nordic_nrf91_slm
