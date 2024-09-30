@@ -1396,6 +1396,20 @@ enum bt_security_err {
 	BT_SECURITY_ERR_UNSPECIFIED,
 };
 
+struct bt_conn_le_cs_procedure_enable_complete {
+	uint8_t config_id;
+	uint8_t state;
+	uint8_t tone_antenna_config_selection;
+	uint8_t selected_tx_power;
+	uint32_t subevent_len;
+	uint8_t subevents_per_event;
+	uint16_t subevent_interval;
+	uint16_t event_interval;
+	uint16_t procedure_interval;
+	uint16_t procedure_count;
+	uint16_t max_procedure_len;
+};
+
 /** @brief Connection callback structure.
  *
  *  This structure is used for tracking the state of a connection.
@@ -1677,6 +1691,27 @@ struct bt_conn_cb {
 	 *  @param config_id ID of the CS configuration that was removed.
 	 */
 	void (*le_cs_config_removed)(struct bt_conn *conn, uint8_t config_id);
+
+	/** @brief LE CS Security Enable Complete Event.
+	 *
+	 *  This callback notifies the application that a Channel Sounding
+	 *  Security Enable procedure has completed
+	 *
+	 *  @param conn Connection object.
+	 */
+	void (*le_cs_security_enable_available)(struct bt_conn *conn);
+
+	/** @brief LE CS Procedure Enable Complete Event.
+	 *
+	 *  This callback notifies the application that a Channel Sounding
+	 *  Procedure Enable procedure has completed
+	 *
+	 *  @param conn Connection object.
+	 *  @param params CS Procedure Enable parameters
+	 */
+	void (*le_cs_procedure_enable_available)(struct bt_conn *conn,
+				struct bt_conn_le_cs_procedure_enable_complete *params);
+
 #endif
 
 	/** @internal Internally used field for list handling */

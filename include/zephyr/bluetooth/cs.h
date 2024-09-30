@@ -620,6 +620,136 @@ int bt_le_cs_create_config(struct bt_conn *conn, struct bt_le_cs_create_config_p
  */
 int bt_le_cs_remove_config(struct bt_conn *conn, uint8_t config_id);
 
+/** @brief CS Security Enable
+ *
+ * This commmand is used to start or restart the Channel Sounding Security
+ * Start procedure in the local Controller for the ACL connection identified
+ * in the conn parameter.
+ *
+ * @note To use this API @kconfig{CONFIG_BT_CHANNEL_SOUNDING} must be set.
+ *
+ * @param conn   Connection Object.
+ *
+ * @return Zero on success or (negative) error code on failure.
+ */
+int bt_le_cs_security_enable(struct bt_conn *conn);
+
+struct bt_le_cs_procedure_enable_param {
+	uint8_t config_id;
+	uint8_t enable;
+};
+
+/** @brief CS Procedure Enable
+ *
+ *  This command is used to enable or disable the scheduling of CS procedures
+ *  by the local Controller, with the remote device identified in the conn
+ *  parameter.
+ *
+ * @note To use this API @kconfig{CONFIG_BT_CHANNEL_SOUNDING} must be set.
+ *
+ * @param conn   Connection Object.
+ * @param params Parameters for the CS Procedure Enable command.
+ *
+ * @return Zero on success or (negative) error code on failure.
+ */
+int bt_le_cs_procedure_enable(struct bt_conn *conn,
+			const struct bt_le_cs_procedure_enable_param *params);
+
+struct bt_le_cs_set_procedure_parameters_param {
+	uint8_t config_id;
+	uint16_t max_procedure_len;
+	uint16_t min_procedure_interval;
+	uint16_t max_procedure_interval;
+	uint16_t max_procedure_count;
+	uint32_t min_subevent_len;
+	uint32_t max_subevent_len;
+	uint8_t tone_antenna_config_selection;
+	uint8_t phy;
+	uint8_t tx_power_delta;
+	uint8_t preferred_peer_antenna;
+	uint8_t snr_control_initiator;
+	uint8_t snr_control_reflector;
+};
+
+/** @brief CS Set Procedure Parameters
+ *
+ * This command is used to set the parameters for the scheduling of one
+ * or more CS procedures by the local controller.
+ *
+ * @note To use this API @kconfig{CONFIG_BT_CHANNEL_SOUNDING} must be set.
+ *
+ * @param conn Connection Object.
+ * @param params Parameters for the CS Set Procedure Parameters command.
+ *
+ * @return Zero on success or (negative) error code on failure.
+ */
+int bt_le_cs_set_procedure_parameters(struct bt_conn *conn,
+				const struct bt_le_cs_set_procedure_parameters_param *params);
+
+/** @brief CS Set Channel Classification
+ *
+ * This command is used to update the channel classification based on
+ * its local information.
+ *
+ * The nth bitfield (in the range 0 to 78) contains the value for the CS
+ * channel index n. Channel Enabled = 1; Channel Disabled = 0.
+ *
+ * Channels n = 0, 1, 23, 24, 25, 77, and 78 shall be reserved for future
+ * use and shall be set to zero. At least 15 channels shall be enabled.
+ *
+ * The most significant bit (bit 79) is reserved for future use.
+ *
+ * @note To use this API, @kconfig{CONFIG_BT_CHANNEL_SOUNDING} must be set.
+ *
+ * @param channel_classification Bit fields
+ *
+ * @return Zero on success or (negative) error code on failure.
+ */
+int bt_le_cs_set_channel_classification(uint8_t channel_classification[10]);
+
+/** @brief CS Read Local Supported Capabilities
+ *
+ *  This command is used to read the CS capabilities that are supported
+ *  by the local Controller.
+ *
+ * @note To use this API @kconfig{CONFIG_BT_CHANNEL_SOUNDING} must be set.
+ *
+ * @param ret Return values for the CS Procedure Enable command.
+ *
+ * @return Zero on success or (negative) error code on failure.
+ */
+int bt_le_cs_read_local_supported_capabilities(struct bt_conn_le_cs_capabilities *ret);
+
+/** @brief CS Write Cached Remote Supported Capabilities
+ *
+ *  This command is used to write the cached copy of the CS capabilities
+ *  that are supported by the remote Controller for the connection
+ *  identified.
+ *
+ * @note To use this API @kconfig{CONFIG_BT_CHANNEL_SOUNDING} must be set.
+ *
+ * @param conn   Connection Object.
+ * @param params Parameters for the CS Write Cached Remote Supported Capabilities command.
+ *
+ * @return Zero on success or (negative) error code on failure.
+ */
+int bt_le_cs_write_cached_remote_supported_capabilities(struct bt_conn *conn,
+						const struct bt_conn_le_cs_capabilities *params);
+
+/** @brief CS Write Cached Remote FAE Table
+ *
+ *  This command is used to write a cached copy of the per-channel mode-0
+ *  Frequency Actuation Error table of the remote device in the local Controller.
+ *
+ * @note To use this API @kconfig{CONFIG_BT_CHANNEL_SOUNDING} must be set.
+ *
+ * @param conn   Connection Object.
+ * @param remote_fae_table Per-channel mode-0 FAE table of the local Controller
+ *
+ * @return Zero on success or (negative) error code on failure.
+ */
+int bt_le_cs_write_cached_remote_fae_table(struct bt_conn *conn, uint8_t remote_fae_table[72]);
+
 #ifdef __cplusplus
 }
 #endif
