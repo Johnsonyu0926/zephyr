@@ -36,6 +36,7 @@ static int __stored_creds_to_params(struct wifi_credentials_personal *creds,
 		ret = -ENOMEM;
 		goto err_out;
 	}
+
 	memset(ssid, 0, creds->header.ssid_len + 1);
 	ret = snprintf(ssid, creds->header.ssid_len + 1, "%s", creds->header.ssid);
 	if (ret > creds->header.ssid_len) {
@@ -43,6 +44,7 @@ static int __stored_creds_to_params(struct wifi_credentials_personal *creds,
 		ret = -EINVAL;
 		goto err_out;
 	}
+
 	params->ssid = ssid;
 	params->ssid_length = creds->header.ssid_len;
 
@@ -54,6 +56,7 @@ static int __stored_creds_to_params(struct wifi_credentials_personal *creds,
 			ret = -ENOMEM;
 			goto err_out;
 		}
+
 		memset(psk, 0, creds->password_len + 1);
 		ret = snprintf(psk, creds->password_len + 1, "%s", creds->password);
 		if (ret > creds->password_len) {
@@ -61,6 +64,7 @@ static int __stored_creds_to_params(struct wifi_credentials_personal *creds,
 			ret = -EINVAL;
 			goto err_out;
 		}
+
 		params->psk = psk;
 		params->psk_length = creds->password_len;
 	}
@@ -102,10 +106,12 @@ err_out:
 		k_free(ssid);
 		ssid = NULL;
 	}
+
 	if (psk) {
 		k_free(psk);
 		psk = NULL;
 	}
+
 	return ret;
 }
 
@@ -180,7 +186,10 @@ static int add_static_network_config(struct net_if *iface)
 #if defined(CONFIG_WIFI_CREDENTIALS_STATIC)
 
 	struct wifi_credentials_personal creds = {
-		.header = { .ssid_len = strlen(CONFIG_WIFI_CREDENTIALS_STATIC_SSID), },
+		.header =
+			{
+				.ssid_len = strlen(CONFIG_WIFI_CREDENTIALS_STATIC_SSID),
+			},
 		.password_len = strlen(CONFIG_WIFI_CREDENTIALS_STATIC_PASSWORD),
 	};
 

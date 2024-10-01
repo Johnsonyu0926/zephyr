@@ -49,13 +49,13 @@ extern "C" {
  *
  */
 struct wifi_credentials_header {
-	enum wifi_security_type type; /**< Wi-Fi security type */
-	char ssid[WIFI_SSID_MAX_LEN]; /**< SSID (Service Set Identifier) */
-	size_t ssid_len; /**< Length of the SSID */
-	uint32_t flags; /**< Flags for controlling detail settings */
-	uint32_t timeout; /**< Timeout for connecting to the network */
+	enum wifi_security_type type;     /**< Wi-Fi security type */
+	char ssid[WIFI_SSID_MAX_LEN];     /**< SSID (Service Set Identifier) */
+	size_t ssid_len;                  /**< Length of the SSID */
+	uint32_t flags;                   /**< Flags for controlling detail settings */
+	uint32_t timeout;                 /**< Timeout for connecting to the network */
 	uint8_t bssid[WIFI_MAC_ADDR_LEN]; /**< BSSID (Basic Service Set Identifier) */
-	uint8_t channel; /**< Channel on which the network operates */
+	uint8_t channel;                  /**< Channel on which the network operates */
 };
 
 /**
@@ -67,9 +67,9 @@ struct wifi_credentials_header {
  *
  */
 struct wifi_credentials_personal {
-	struct wifi_credentials_header header; /**< Header */
+	struct wifi_credentials_header header;            /**< Header */
 	char password[WIFI_CREDENTIALS_MAX_PASSWORD_LEN]; /**< Password/PSK */
-	size_t password_len; /**< Length of the password */
+	size_t password_len;                              /**< Length of the password */
 };
 
 /**
@@ -78,13 +78,13 @@ struct wifi_credentials_personal {
  */
 struct wifi_credentials_enterprise {
 	struct wifi_credentials_header header; /**< Header */
-	size_t identity_len; /**< Length of the identity */
-	size_t anonymous_identity_len; /**< Length of the anonymous identity */
-	size_t password_len; /**< Length of the password */
-	size_t ca_cert_len; /**< Length of the CA certificate */
-	size_t client_cert_len; /**< Length of the client certificate */
-	size_t private_key_len; /**< Length of the private key */
-	size_t private_key_pw_len; /**< Length of the private key password */
+	size_t identity_len;                   /**< Length of the identity */
+	size_t anonymous_identity_len;         /**< Length of the anonymous identity */
+	size_t password_len;                   /**< Length of the password */
+	size_t ca_cert_len;                    /**< Length of the CA certificate */
+	size_t client_cert_len;                /**< Length of the client certificate */
+	size_t private_key_len;                /**< Length of the private key */
+	size_t private_key_pw_len;             /**< Length of the private key password */
 };
 
 /**

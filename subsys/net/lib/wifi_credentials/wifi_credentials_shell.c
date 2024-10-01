@@ -37,6 +37,7 @@ static void print_network_info(void *cb_arg, const char *ssid, size_t ssid_len)
 			    ssid_len, ssid, ret);
 		return;
 	}
+
 	shell_fprintf(sh, SHELL_VT100_COLOR_DEFAULT,
 		      "  network ssid: \"%.*s\", ssid_len: %d, type: %s", ssid_len, ssid, ssid_len,
 		      wifi_security_txt(creds.header.type));
@@ -92,18 +93,23 @@ static enum wifi_security_type parse_sec_type(const char *s)
 	if (strcmp("OPEN", s) == 0) {
 		return WIFI_SECURITY_TYPE_NONE;
 	}
+
 	if (strcmp("WPA2-PSK", s) == 0) {
 		return WIFI_SECURITY_TYPE_PSK;
 	}
+
 	if (strcmp("WPA2-PSK-SHA256", s) == 0) {
 		return WIFI_SECURITY_TYPE_PSK_SHA256;
 	}
+
 	if (strcmp("WPA3-SAE", s) == 0) {
 		return WIFI_SECURITY_TYPE_SAE;
 	}
+
 	if (strcmp("WPA-PSK", s) == 0) {
 		return WIFI_SECURITY_TYPE_WPA_PSK;
 	}
+
 	return WIFI_SECURITY_TYPE_UNKNOWN;
 }
 
@@ -112,12 +118,15 @@ static enum wifi_frequency_bands parse_band(const char *s)
 	if (strcmp("2.4GHz", s) == 0) {
 		return WIFI_FREQ_BAND_2_4_GHZ;
 	}
+
 	if (strcmp("5GHz", s) == 0) {
 		return WIFI_FREQ_BAND_5_GHZ;
 	}
+
 	if (strcmp("6GHz", s) == 0) {
 		return WIFI_FREQ_BAND_6_GHZ;
 	}
+
 	return WIFI_FREQ_BAND_UNKNOWN;
 }
 
@@ -300,6 +309,7 @@ static int cmd_auto_connect(const struct shell *sh, size_t argc, char *argv[])
 			    "An error occurred when trying to auto-connect to a network. err: %d",
 			    rc);
 	}
+
 	return 0;
 }
 

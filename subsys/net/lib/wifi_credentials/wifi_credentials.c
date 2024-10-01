@@ -32,6 +32,7 @@ static inline ssize_t lookup_idx(const uint8_t *ssid, size_t ssid_len)
 		if (ssid_len != ssid_cache_lengths[i]) {
 			continue;
 		}
+
 		if (strncmp(ssid, ssid_cache[i], ssid_len) == 0) {
 			return i;
 		}
@@ -109,6 +110,7 @@ int wifi_credentials_get_by_ssid_personal_struct(const char *ssid, size_t ssid_l
 		LOG_ERR("Cannot retrieve WiFi credentials, SSID has invalid format");
 		return -EINVAL;
 	}
+
 	if (buf == NULL) {
 		LOG_ERR("Cannot retrieve WiFi credentials, "
 			"destination struct pointer cannot be NULL");
@@ -156,6 +158,7 @@ int wifi_credentials_set_personal_struct(const struct wifi_credentials_personal 
 		LOG_ERR("Cannot set WiFi credentials, SSID has invalid format");
 		return -EINVAL;
 	}
+
 	if (creds == NULL) {
 		LOG_ERR("Cannot set WiFi credentials, provided struct pointer cannot be NULL");
 		return -EINVAL;
@@ -201,12 +204,14 @@ int wifi_credentials_set_personal(const char *ssid, size_t ssid_len, enum wifi_s
 		LOG_ERR("Cannot set WiFi credentials, SSID has invalid format");
 		return -EINVAL;
 	}
+
 	if (flags & WIFI_CREDENTIALS_FLAG_BSSID &&
 	    (bssid_len != WIFI_MAC_ADDR_LEN || bssid == NULL)) {
 		LOG_ERR("Cannot set WiFi credentials, "
 			"provided flags indicated BSSID, but no BSSID provided");
 		return -EINVAL;
 	}
+
 	if ((type != WIFI_SECURITY_TYPE_NONE && (password_len == 0 || password == NULL)) ||
 	    (password_len > WIFI_CREDENTIALS_MAX_PASSWORD_LEN)) {
 		LOG_ERR("Cannot set WiFi credentials, password not provided or invalid");
@@ -267,10 +272,12 @@ int wifi_credentials_get_by_ssid_personal(const char *ssid, size_t ssid_len,
 		LOG_ERR("Cannot retrieve WiFi credentials, SSID has invalid format");
 		return -EINVAL;
 	}
+
 	if (bssid_buf_len != WIFI_MAC_ADDR_LEN || bssid_buf == NULL) {
 		LOG_ERR("BSSID buffer needs to be provided");
 		return -EINVAL;
 	}
+
 	if (password_buf == NULL || password_buf_len > WIFI_CREDENTIALS_MAX_PASSWORD_LEN ||
 	    password_buf_len == 0) {
 		LOG_ERR("WiFi password buffer needs to be provided");
@@ -352,23 +359,27 @@ exit:
 void wifi_credentials_for_each_ssid(wifi_credentials_ssid_cb cb, void *cb_arg)
 {
 	k_mutex_lock(&wifi_credentials_mutex, K_FOREVER);
+
 	for (size_t i = 0; i < CONFIG_WIFI_CREDENTIALS_MAX_ENTRIES; ++i) {
 		if (is_entry_used(i)) {
 			cb(cb_arg, ssid_cache[i], ssid_cache_lengths[i]);
 		}
 	}
+
 	k_mutex_unlock(&wifi_credentials_mutex);
 }
 
 bool wifi_credentials_is_empty(void)
 {
 	k_mutex_lock(&wifi_credentials_mutex, K_FOREVER);
+
 	for (size_t i = 0; i < CONFIG_WIFI_CREDENTIALS_MAX_ENTRIES; ++i) {
 		if (is_entry_used(i)) {
 			k_mutex_unlock(&wifi_credentials_mutex);
 			return false;
 		}
 	}
+
 	k_mutex_unlock(&wifi_credentials_mutex);
 	return true;
 }
@@ -386,6 +397,7 @@ int wifi_credentials_delete_all(void)
 					ret);
 				break;
 			}
+
 			wifi_credentials_uncache_ssid(i);
 		}
 	}

@@ -48,7 +48,8 @@ static size_t fake_settings_buf_lens[CONFIG_WIFI_CREDENTIALS_MAX_ENTRIES];
 typedef int (*settings_set_cb)(const char *key, size_t len, settings_read_cb read_cb, void *cb_arg);
 
 static const struct wifi_credentials_personal example1 = {
-	.header = {
+	.header =
+		{
 			.ssid = SSID1,
 			.ssid_len = strlen(SSID1),
 			.type = SECURITY1,
@@ -60,7 +61,8 @@ static const struct wifi_credentials_personal example1 = {
 };
 
 static const struct wifi_credentials_personal example2 = {
-	.header = {
+	.header =
+		{
 			.ssid = SSID2,
 			.ssid_len = strlen(SSID2),
 			.type = SECURITY2,
@@ -230,5 +232,5 @@ ZTEST(wifi_credentials_backend_settings, test_delete)
 	zassert_equal(settings_delete_fake.call_count, 1, "settings_delete call count mismatch");
 }
 
-ZTEST_SUITE(wifi_credentials_backend_settings,
-	    NULL, NULL, wifi_credentials_backend_settings_setup, NULL, NULL);
+ZTEST_SUITE(wifi_credentials_backend_settings, NULL, NULL, wifi_credentials_backend_settings_setup,
+	    NULL, NULL);

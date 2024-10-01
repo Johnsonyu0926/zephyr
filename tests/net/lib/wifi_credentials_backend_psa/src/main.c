@@ -51,7 +51,8 @@ FAKE_VOID_FUNC(psa_set_key_type, psa_key_attributes_t *, psa_key_type_t);
 FAKE_VOID_FUNC(psa_set_key_bits, psa_key_attributes_t *, size_t);
 
 static const struct wifi_credentials_personal example1 = {
-	.header = {
+	.header =
+		{
 			.ssid = SSID1,
 			.ssid_len = strlen(SSID1),
 			.type = SECURITY1,
@@ -63,7 +64,8 @@ static const struct wifi_credentials_personal example1 = {
 };
 
 static const struct wifi_credentials_personal example2 = {
-	.header = {
+	.header =
+		{
 			.ssid = SSID2,
 			.ssid_len = strlen(SSID2),
 			.type = SECURITY2,
@@ -220,5 +222,5 @@ ZTEST(wifi_credentials_backend_psa, test_delete)
 	zassert_equal(psa_destroy_key_fake.call_count, 2, "Destroy key call count mismatch");
 }
 
-ZTEST_SUITE(wifi_credentials_backend_psa,
-	    NULL, NULL, wifi_credentials_backend_psa_setup, NULL, NULL);
+ZTEST_SUITE(wifi_credentials_backend_psa, NULL, NULL, wifi_credentials_backend_psa_setup, NULL,
+	    NULL);

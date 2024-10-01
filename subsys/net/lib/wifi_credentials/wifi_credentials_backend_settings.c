@@ -103,6 +103,7 @@ int wifi_credentials_backend_init(void)
 		LOG_ERR("Initializing settings subsystem failed: %d", ret);
 		return ret;
 	}
+
 	ret = settings_load_subtree_direct(WIFI_CREDENTIALS_SBE_BASE_KEY,
 					   zephyr_settings_backend_load_key_cb, NULL);
 
@@ -156,8 +157,10 @@ int wifi_credentials_load_entry(size_t idx, void *buf, size_t buf_len)
 	if (ret) {
 		return ret;
 	}
+
 	if (!arg.found) {
 		return -ENOENT;
 	}
+
 	return 0;
 }
