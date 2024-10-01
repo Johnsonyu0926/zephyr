@@ -4,6 +4,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#undef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 200809L /* For strnlen() */
+
 #include <zephyr/kernel.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,9 +20,6 @@
 #include <zephyr/net/ethernet.h>
 
 #include <zephyr/net/wifi_credentials.h>
-
-/* Ensure 'strnlen' is available even with -std=c99. */
-size_t strnlen(const char *buf, size_t bufsz);
 
 #define MACSTR "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx"
 
