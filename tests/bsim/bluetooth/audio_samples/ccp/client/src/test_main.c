@@ -37,10 +37,10 @@ static void test_ccp_client_sample_init(void)
 
 static void test_ccp_client_sample_tick(bs_time_t HW_device_time)
 {
-	extern struct bt_ccp_client *client_inst;
+	extern struct bt_ccp_client *client;
 
-	/* If discovery was a success then client_inst is non-NULL - Use as pass criteria */
-	if (client_inst == NULL) {
+	/* If discovery was a success then client is non-NULL - Use as pass criteria */
+	if (client == NULL) {
 		FAIL("CCP client sample FAILED (Did not pass after %i seconds)\n", WAIT_TIME);
 	} else {
 		PASS("CCP client sample PASSED\n");
