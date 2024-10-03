@@ -37,7 +37,7 @@ config BT_MESH_GATT_CLIENT
 config BT_MESH_GATT_SERVER
 	bool
 	select BT_MESH_GATT
-	select BT_GATT_DYNAMIC_DB
+	depends on BT_GATT_DYNAMIC_DB
 
 config BT_MESH_PB_GATT_COMMON
 	bool
