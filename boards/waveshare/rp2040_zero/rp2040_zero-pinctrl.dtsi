@@ -7,12 +7,12 @@
 #include <dt-bindings/pinctrl/rpi-pico-rp2040-pinctrl.h>
 
 &pinctrl {
-	uart1_default: uart1_default {
+	uart0_default: uart0_default {
 		group1 {
-			pinmux = <UART1_TX_P20>;
+			pinmux = <UART0_TX_P0>;
 		};
 		group2 {
-			pinmux = <UART1_RX_P5>;
+			pinmux = <UART0_RX_P1>;
 			input-enable;
 		};
 	};
@@ -62,9 +62,9 @@
 	clocks_default: clocks_default {
 	};
 
-	ws2812_pio1_default: ws2812_pio1_default {
+	ws2812_pio0_default: ws2812_pio0_default {
 		ws2812 {
-			pinmux = <PIO1_P16>;
+			pinmux = <PIO0_P16>;
 		};
 	};
 };
