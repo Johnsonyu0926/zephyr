@@ -487,11 +487,13 @@ static int qspi_wait_while_writing(const struct device *dev, uint32_t poll_perio
 	int rc;
 
 	do {
+		if (poll_period_us > 0) {
 #ifdef CONFIG_MULTITHREADING
-		k_sleep(K_USEC(poll_period_us));
+			k_sleep(K_USEC(poll_period_us));
 #else
-		k_busy_wait(poll_period_us);
+			k_busy_wait(poll_period_us);
 #endif
+		}
 		rc = qspi_rdsr(dev, 1);
 	} while ((rc >= 0)
 		 && ((rc & SPI_NOR_WIP_BIT) != 0U));
