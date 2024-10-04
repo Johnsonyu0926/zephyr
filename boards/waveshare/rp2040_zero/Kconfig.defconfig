@@ -19,5 +19,17 @@ endif #I2C_DW
 config USB_SELF_POWERED
 	default n
 
+config CONFIG_SERIAL
+	default y
+
+config CONFIG_GPIO
+	default y
+
+config CONFIG_CONSOLE
+	default y
+
+config CONFIG_UART_CONSOLE
+	default y	
+
 endif # BOARD_RP2040_ZERO
 

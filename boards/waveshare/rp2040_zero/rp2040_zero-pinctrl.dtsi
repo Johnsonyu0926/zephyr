@@ -6,8 +6,11 @@
 
 #include <dt-bindings/pinctrl/rpi-pico-rp2040-pinctrl.h>
 
+#include <zephyr/dt-bindings/i2c/i2c.h>
+
 &pinctrl {
 	uart0_default: uart0_default {
+		status = "okay";
 		group1 {
 			pinmux = <UART0_TX_P0>;
 		};
