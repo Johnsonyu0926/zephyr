@@ -289,13 +289,10 @@ static int cmd_list_networks(const struct shell *sh, size_t argc, char *argv[])
 	return 0;
 }
 
-SHELL_SUBCMD_SET_CREATE(sub_wifi_cred, (wifi_cred));
-SHELL_SUBCMD_ADD((wifi_cred), add, NULL, "Add network to storage.", cmd_add_network, 0, 0);
-SHELL_SUBCMD_ADD((wifi_cred), delete, NULL, "Delete network from storage.", cmd_delete_network, 0,
+SHELL_SUBCMD_ADD((wifi), add, NULL, "Add network to storage.\n", cmd_add_network, 0, 0);
+SHELL_SUBCMD_ADD((wifi), delete, NULL, "Delete network from storage.\n", cmd_delete_network, 0,
 		 0);
-SHELL_SUBCMD_ADD((wifi_cred), list, NULL, "List stored networks.", cmd_list_networks, 0, 0);
-
-SHELL_CMD_REGISTER(wifi_cred, &sub_wifi_cred, "Wi-Fi Credentials commands", NULL);
+SHELL_SUBCMD_ADD((wifi), list, NULL, "List stored networks.\n", cmd_list_networks, 0, 0);
 
 #if CONFIG_WIFI_CREDENTIALS_CONNECT_STORED
 
@@ -313,7 +310,7 @@ static int cmd_auto_connect(const struct shell *sh, size_t argc, char *argv[])
 	return 0;
 }
 
-SHELL_SUBCMD_ADD((wifi_cred), auto_connect, NULL, "Connect to any stored network.",
+SHELL_SUBCMD_ADD((wifi), auto_connect, NULL, "Connect to any stored network.\n",
 		 cmd_auto_connect, 0, 0);
 
 #endif /* CONFIG_WIFI_CREDENTIALS_CONNECT_STORED */
