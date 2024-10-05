@@ -2,7 +2,7 @@ identifier: rp2040_zero
 name: Waveshare RP2040-Zero
 type: mcu
 arch: arm
-flash: 2048
+flash: 16384
 ram: 264
 toolchain:
   - zephyr
