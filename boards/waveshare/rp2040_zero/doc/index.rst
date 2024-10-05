@@ -41,8 +41,7 @@ Hardware
 Supported Features
 ==================
 
-The rpi_pico board configuration supports the following
-hardware features:
+The RP2040-Zero board configuration supports the following hardware features:
 
 .. list-table::
    :header-rows: 1
@@ -129,7 +128,7 @@ Flashing
 Using UF2
 ---------
 
-Since it doesn’t expose the SWD pins, you must flash the RP2040-Zero with a UF2 file. By default, building an app for this board will generate a build/zephyr/zephyr.uf2 file. If the RP2040-Zero is powered on with the BOOTSEL button pressed, it will appear on the host as a mass storage device. The UF2 file should be drag-and-dropped to the device, which will flash the RP2040-Zero.
+Since it doesn’t expose the SWD pins, you must flash the RP2040-Zero with an UF2 file. By default, building an app for this board will generate a build/zephyr/zephyr.uf2 file. If the RP2040-Zero is powered on with the BOOTSEL button pressed, it will appear on the host as a mass storage device. The UF2 file should be drag-and-dropped to the device, which will flash the RP2040-Zero.
 
 
 Here is an example of building and flashing the sample for driving the built-in RGB led.
