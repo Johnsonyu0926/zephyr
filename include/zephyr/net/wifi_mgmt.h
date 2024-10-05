@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2017 Intel Corporation.
  * Copyright 2024 NXP
+ * Copyright (c) 2024 Nordic Semiconductor ASA
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -106,9 +107,13 @@ enum net_request_wifi_cmd {
 	NET_REQUEST_WIFI_CMD_ENTERPRISE_CREDS,
 	/** Get RTS threshold */
 	NET_REQUEST_WIFI_CMD_RTS_THRESHOLD_CONFIG,
-/** @cond INTERNAL_HIDDEN */
+#ifdef CONFIG_WIFI_CREDENTIALS_CONNECT_STORED
+	/** Connect to APs stored using wifi_credentials library. */
+	NET_REQUEST_WIFI_CMD_CONNECT_STORED,
+#endif
+	/** @cond INTERNAL_HIDDEN */
 	NET_REQUEST_WIFI_CMD_MAX
-/** @endcond */
+	/** @endcond */
 };
 
 /** Request a Wi-Fi scan */
@@ -249,6 +254,12 @@ NET_MGMT_DEFINE_REQUEST_HANDLER(NET_REQUEST_WIFI_ENTERPRISE_CREDS);
 	(_NET_WIFI_BASE | NET_REQUEST_WIFI_CMD_RTS_THRESHOLD_CONFIG)
 
 NET_MGMT_DEFINE_REQUEST_HANDLER(NET_REQUEST_WIFI_RTS_THRESHOLD_CONFIG);
+
+#ifdef CONFIG_WIFI_CREDENTIALS_CONNECT_STORED
+#define NET_REQUEST_WIFI_CONNECT_STORED (_NET_WIFI_BASE | NET_REQUEST_WIFI_CMD_CONNECT_STORED)
+
+NET_MGMT_DEFINE_REQUEST_HANDLER(NET_REQUEST_WIFI_CONNECT_STORED);
+#endif
 
 /** @brief Wi-Fi management events */
 enum net_event_wifi_cmd {
