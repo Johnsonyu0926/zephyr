@@ -135,9 +135,7 @@ int main(void)
 		fmt.pixelformat = VIDEO_FOURCC_FROM_STR(CONFIG_VIDEO_PIXEL_FORMAT);
 	}
 
-	LOG_INF("- Video format: %c%c%c%c %ux%u", (char)fmt.pixelformat,
-	       (char)(fmt.pixelformat >> 8), (char)(fmt.pixelformat >> 16),
-	       (char)(fmt.pixelformat >> 24), fmt.width, fmt.height);
+	LOG_INF("- Video format: " PRIvfmt, PRIvfmt_arg(&fmt));
 
 	if (video_set_format(video_dev, VIDEO_EP_OUT, &fmt)) {
 		LOG_ERR("Unable to set format");

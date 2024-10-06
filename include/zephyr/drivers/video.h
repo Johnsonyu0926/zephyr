@@ -35,6 +35,28 @@ extern "C" {
 #endif
 
 /**
+ * @brief Print formatter to use in printf() style format strings.
+ *
+ * This prints a video format in the form of "{width}x{height} {fourcc}" format
+ * string for use along with @ref PRIvfmt_arg.
+ *
+ * @example "LOG_DBG(\"Setting format to \"PRIvfmt, PRIvfmt_arg(fmt));"
+ */
+#define PRIvfmt "%c%c%c%c %ux%u"
+
+/**
+ * @brief Argument formatter for use in printf() style format strings.
+ *
+ * This conditions a video format argument for use with @ref PRIvfmt.
+ *
+ * @param fmt Pointer to a @ref video_format that will be formatted
+ * @return list of parameters that match @ref PRIvfmt specification
+ */
+#define PRIvfmt_arg(fmt)                                                                           \
+	(fmt)->pixelformat, (fmt)->pixelformat >> 8, (fmt)->pixelformat >> 16,                     \
+	(fmt)->pixelformat >> 24, (fmt)->width, (fmt)->height
+
+/**
  * @struct video_format
  * @brief Video format structure
  *
