@@ -444,13 +444,14 @@ class TestPlan:
                 new_config_found = True
 
             # helper function to initialize and add platforms
-            def init_and_add_platforms(data):
+            def init_and_add_platforms(data, board, target, qualifier, aliases):
                 platform = Platform()
                 if not new_config_found:
                     data = self.find_twister_data(bdirs[board.dir], aliases)
                     if not data:
                         return
                 platform.load(board, target, aliases, data)
+                platform.qualifier = qualifier
                 if platform.name in [p.name for p in self.platforms]:
                     logger.error(f"Duplicate platform {platform.name} in {board.dir}")
                     raise Exception(f"Duplicate platform identifier {platform.name} found")
@@ -460,6 +461,7 @@ class TestPlan:
                 self.platforms.append(platform)
 
             for qual in list_boards.board_v2_qualifiers(board):
+
                 if board.revisions:
                     for rev in board.revisions:
                         target = f"{board.name}@{rev.name}/{qual}"
@@ -472,14 +474,13 @@ class TestPlan:
                                 aliases.append(f"{board.name}")
                             aliases.append(f"{board.name}@{rev.name}")
 
-                        init_and_add_platforms(data)
+                        init_and_add_platforms(data, board, target, qual, aliases)
                 else:
                     target = f"{board.name}/{qual}"
                     aliases = [target]
                     if '/' not in qual and len(board.socs) == 1:
                         aliases.append(board.name)
-
-                    init_and_add_platforms(data)
+                    init_and_add_platforms(data, board, target, qual, aliases)
 
         for platform in self.platforms:
             if not platform_config.get('override_default_platforms', False):
@@ -1003,13 +1004,13 @@ class TestPlan:
                         keyed_test = keyed_tests.get(test_keys)
                         if keyed_test is not None:
                             plat_key = {key_field: getattr(keyed_test['plat'], key_field) for key_field in key_fields}
-                            instance.add_filter(f"Already covered for key {tuple(key)} by platform {keyed_test['plat'].name} having key {plat_key}", Filters.PLATFORM_KEY)
+                            instance.add_filter(f"Already covered for key {key} by platform {keyed_test['plat'].name} having key {plat_key}", Filters.PLATFORM_KEY)
                         else:
-                            # do not add a platform to keyed tests if previously filtered
+                            # do not add a platform to keyed tests if previously
+                            # filtered
+
                             if not instance.filters:
                                 keyed_tests[test_keys] = {'plat': plat, 'ts': ts}
-                            else:
-                                instance.add_filter(f"Excluded platform missing key fields demanded by test {key_fields}", Filters.PLATFORM)
 
                 # if nothing stopped us until now, it means this configuration
                 # needs to be added.

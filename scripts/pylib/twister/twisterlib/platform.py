@@ -54,6 +54,7 @@ class Platform:
         self.filter_data = dict()
         self.uart = ""
         self.resc = ""
+        self.qualifier = None
 
     def load(self, board, target, aliases, data={}):
         self.name = target
@@ -65,6 +66,7 @@ class Platform:
             vdata = v.get(a, {})
             if vdata:
                 break
+
         self.normalized_name = self.name.replace("/", "_")
         self.sysbuild = vdata.get("sysbuild", data.get("sysbuild", False))
         self.twister = vdata.get("twister", data.get("twister", True))
