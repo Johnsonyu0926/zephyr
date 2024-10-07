@@ -11,7 +11,6 @@ common:
     - mimxrt1060_evk
     - sam4l_ek
     - mimxrt1050_evk
-    - mimxrt1060_evk@hyperflash
     - nucleo_f207zg
     - teensy40
     - teensy41
