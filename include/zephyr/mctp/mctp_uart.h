@@ -9,6 +9,7 @@
 #define ZEPHYR_MCTP_UART_H_
 
 #include <stdint.h>
+#include <zephyr/kernel.h>
 #include <zephyr/device.h>
 #include <libmctp.h>
 
@@ -21,7 +22,7 @@ struct mctp_binding_uart {
 	const struct device *dev;
 
 	/* receive buffer and state */
-	uint8_t rxbuf[1024];
+	uint8_t rx_buf[1024];
 	struct mctp_pktbuf *rx_pkt;
 	uint8_t rx_exp_len;
 	uint16_t rx_fcs;
@@ -36,9 +37,19 @@ struct mctp_binding_uart {
 		STATE_WAIT_FCS2,
 		STATE_WAIT_SYNC_END,
 	} rx_state;
+	int rx_res;
+	/* Given to the receiving thread once a mctp
+	 * message is available
+	 */
+	struct k_sem *rx_sem;
 
 	/* staging buffer for tx */
-	uint8_t txbuf[256];
+	uint8_t tx_buf[256];
+	int tx_res;
+	/* Given to the transmitting thread once
+	 * a mctp message is finished sending
+	 */
+	struct k_sem *tx_sem;
 	/** @endcond INTERNAL_HIDDEN */
 };
 
@@ -71,6 +82,8 @@ int mctp_uart_tx(struct mctp_binding *binding, struct mctp_pktbuf *pkt);
  * @param dt_node Devicetree node
  */
 #define MCTP_UART_DT_DEFINE(_name, dt_node)                                                        \
+	K_SEM_DEFINE(_name##_rx_sem, 0, 1); \
+	K_SEM_DEFINE(_name##_tx_sem, 0, 1); \
 	struct mctp_binding_uart _name = {                                                         \
 		.binding =                                                                         \
 			{                                                                          \
@@ -82,6 +95,10 @@ int mctp_uart_tx(struct mctp_binding *binding, struct mctp_pktbuf *pkt);
 				.dev = dt_node,                                                    \
 				.rx_state = STATE_WAIT_SYNC_START,                                 \
 				.rx_pkt = NULL,                                                    \
+				.rx_res = 0, \
+				.rx_sem = &_name##_rx_sem, \
+				.tx_res = 0, \
+				.tx_sem = &_name##_tx_sem, \
 	};
 
 #endif /* ZEPHYR_MCTP_UART_H_ */

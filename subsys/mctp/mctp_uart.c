@@ -35,6 +35,37 @@ static inline struct mctp_binding_uart *binding_to_uart(struct mctp_binding *b)
 	return (struct mctp_binding_uart *)b;
 }
 
+static void mctp_uart_callback(const struct device *dev, struct uart_event *evt,
+                               void *userdata)
+{
+	struct mctp_binding_uart *binding = userdata;
+
+	switch (evt->type) {
+	case UART_TX_DONE:
+		binding->tx_res = 0;
+		k_sem_give(binding->tx_sem);
+		break;
+	case UART_TX_ABORTED:
+		binding->tx_res = -EABORT;
+		k_sem_give(binding->tx_sem);
+		break;
+	case UART_RX_RDY:
+		/* buffer being read into is ready */
+		binding->rx_res = evt->rx.len;
+		k_sem_give(binding->rx_sem);
+		break;
+	case UART_RX_BUF_REQUEST:
+		/* Ignored */
+		break;
+	case UART_RX_BUF_RELEASED:
+		/* Ignored */
+		break;
+	case UART_RX_STOPPED:
+		/* Ignored */
+		break;
+	}	
+}
+
 static void mctp_uart_finish_pkt(struct mctp_binding_uart *uart,
 				 bool valid)
 {
@@ -200,18 +231,10 @@ static void mctp_uart_consume(struct mctp_binding_uart *uart, uint8_t c)
 	LOG_DBG(" -> state: %d", uart->rx_state);
 }
 
-int mctp_uart_poll(struct mctp_binding_uart *uart)
+/* Should be called initially and after each mctp message is received */
+void mctp_uart_rx_enable(struct mctp_binding_uart *uart)
 {
-	int res;
-	char in;
-
-	res = uart_poll_in(uart->dev, &in);
-	/* No input available if not 0 */
-	if (res != 0) {
-		return res;
-	}
-	mctp_uart_consume(uart, in);
-	return 0;
+	uart_rx_enable(uart->dev, &uart->rx_buf, sizeof(uart->rx_buf), K_MSEC(1));
 }
 
 int mctp_uart_tx(struct mctp_binding *b, struct mctp_pktbuf *pkt)
@@ -228,7 +251,7 @@ int mctp_uart_tx(struct mctp_binding *b, struct mctp_pktbuf *pkt)
 	 */
 	len = mctp_pktbuf_size(pkt);
 
-	hdr = (void *)uart->txbuf;
+	hdr = (void *)uart->tx_buf;
 	hdr->flag = MCTP_UART_FRAMING_FLAG;
 	hdr->revision = MCTP_UART_REVISION;
 	hdr->len = len;
@@ -254,12 +277,9 @@ int mctp_uart_tx(struct mctp_binding *b, struct mctp_pktbuf *pkt)
 
 	len += sizeof(*hdr) + sizeof(*tlr);
 
-	int ret;
-
-	for (int i = 0; i < len; i++) {
-		uart_poll_out(uart->dev, uart->txbuf[i]);
-	}
-	return ret;
+	uart_tx(uart->dev, uart->tx_buf, len, K_FOREVER);
+	k_sem_take(uart->tx_sem, K_FOREVER);
+	return uart->tx_res;
 }
 
 int mctp_uart_start(struct mctp_binding *binding)
