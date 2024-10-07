@@ -349,9 +349,9 @@ struct counter_driver_api nxp_mrt_api = {
 	};									\
 										\
 	/* Init parent device in order to handle ISR and init. */		\
-	DEVICE_DT_INST_DEFINE(n, &nxp_mrt_init, NULL, NULL,			\
+	DEVICE_INSTANCE_FROM_DT_INST(n, &nxp_mrt_init, NULL, NULL,		\
 				&nxp_mrt_##n##_config,				\
 				POST_KERNEL,					\
-				CONFIG_COUNTER_INIT_PRIORITY, NULL);
+				NULL);
 
 DT_INST_FOREACH_STATUS_OKAY(NXP_MRT_INIT)
