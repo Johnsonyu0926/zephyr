@@ -352,7 +352,7 @@ SECTIONS
          * section ends on a 4 byte boundary. This wastes a maximum of 3 bytes.
          */
         __bss_end = ALIGN(4);
-    } GROUP_DATA_LINK_IN(RAMABLE_REGION, RAMABLE_REGION)
+    } GROUP_NOLOAD_LINK_IN(RAMABLE_REGION, RAMABLE_REGION)
 
 #include <zephyr/linker/common-noinit.ld>
 
