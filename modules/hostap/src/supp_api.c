@@ -271,7 +271,7 @@ static int wpa_supp_supported_channels(struct wpa_supplicant *wpa_s, uint8_t ban
 	}
 
 	size = ((mode->num_channels) * CHAN_NUM_LEN) + 1;
-	_chan_list = k_malloc(size);
+	_chan_list = os_malloc(size);
 	if (!_chan_list) {
 		wpa_printf(MSG_ERROR, "Mem alloc failed for channel list");
 		return -ENOMEM;
@@ -502,11 +502,11 @@ static int wpas_add_and_config_network(struct wpa_supplicant *wpa_s,
 		if (chan_list) {
 			if (!wpa_cli_cmd_v("set_network %d scan_freq%s", resp.network_id,
 					   chan_list)) {
-				k_free(chan_list);
+				os_free(chan_list);
 				goto out;
 			}
 
-			k_free(chan_list);
+			os_free(chan_list);
 		}
 	}
 
@@ -1662,6 +1662,8 @@ int supplicant_ap_enable(const struct device *dev,
 
 	/* No need to check for existing network to join for SoftAP*/
 	wpa_s->conf->ap_scan = 2;
+	/* Set BSS parameter max_num_sta to default configured value */
+	wpa_s->conf->max_num_sta = CONFIG_WIFI_MGMT_AP_MAX_NUM_STA;
 
 	ret = wpas_add_and_config_network(wpa_s, params, true);
 	if (ret) {
