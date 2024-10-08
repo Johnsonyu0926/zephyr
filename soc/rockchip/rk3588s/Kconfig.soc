@@ -1,0 +1,16 @@
+# Copyright 2024 Université Gustave Eiffel
+# SPDX-License-Identifier: Apache-2.0
+
+config SOC_RK3588S
+	bool
+	select SOC_SERIES_RK3588S
+
+config SOC_SERIES_RK3588S
+	bool
+	select SOC_FAMILY_ROCKCHIP
+
+config SOC
+	default "rk3588s" if SOC_RK3588S
+
+config SOC_SERIES
+	default "rk3588s" if SOC_SERIES_RK3588S
