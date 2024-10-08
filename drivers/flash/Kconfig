@@ -239,6 +239,8 @@ source "drivers/flash/Kconfig.numaker_rmc"
 
 source "drivers/flash/Kconfig.renesas_ra"
 
+source "drivers/flash/Kconfig.renesas_ra_flash_qspi"
+
 module = FLASH
 module-str = flash
 source "subsys/logging/Kconfig.template.log_config"
