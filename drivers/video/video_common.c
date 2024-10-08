@@ -83,3 +83,15 @@ void video_buffer_release(struct video_buffer *vbuf)
 		VIDEO_COMMON_FREE(block->data);
 	}
 }
+
+int video_get_format_index(struct video_format_cap *fmts, struct video_format *fmt, int *idx)
+{
+	for (int i = 0; fmts[i].pixelformat != 0; i++) {
+		if (fmts[i].width_min == fmt->width && fmts[i].height_min == fmt->height &&
+		    fmts[i].pixelformat == fmt->pixelformat) {
+			*idx = i;
+			return 0;
+		}
+	}
+	return -ENOENT;
+}
