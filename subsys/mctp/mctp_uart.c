@@ -35,37 +35,6 @@ static inline struct mctp_binding_uart *binding_to_uart(struct mctp_binding *b)
 	return (struct mctp_binding_uart *)b;
 }
 
-static void mctp_uart_callback(const struct device *dev, struct uart_event *evt,
-                               void *userdata)
-{
-	struct mctp_binding_uart *binding = userdata;
-
-	switch (evt->type) {
-	case UART_TX_DONE:
-		binding->tx_res = 0;
-		k_sem_give(binding->tx_sem);
-		break;
-	case UART_TX_ABORTED:
-		binding->tx_res = -EABORT;
-		k_sem_give(binding->tx_sem);
-		break;
-	case UART_RX_RDY:
-		/* buffer being read into is ready */
-		binding->rx_res = evt->rx.len;
-		k_sem_give(binding->rx_sem);
-		break;
-	case UART_RX_BUF_REQUEST:
-		/* Ignored */
-		break;
-	case UART_RX_BUF_RELEASED:
-		/* Ignored */
-		break;
-	case UART_RX_STOPPED:
-		/* Ignored */
-		break;
-	}	
-}
-
 static void mctp_uart_finish_pkt(struct mctp_binding_uart *uart,
 				 bool valid)
 {
@@ -231,10 +200,45 @@ static void mctp_uart_consume(struct mctp_binding_uart *uart, uint8_t c)
 	LOG_DBG(" -> state: %d", uart->rx_state);
 }
 
-/* Should be called initially and after each mctp message is received */
-void mctp_uart_rx_enable(struct mctp_binding_uart *uart)
+
+static void mctp_uart_callback(const struct device *dev, struct uart_event *evt,
+                               void *userdata)
 {
-	uart_rx_enable(uart->dev, &uart->rx_buf, sizeof(uart->rx_buf), K_MSEC(1));
+	struct mctp_binding_uart *binding = userdata;
+
+	switch (evt->type) {
+	case UART_TX_DONE:
+		binding->tx_res = 0;
+		k_sem_give(binding->tx_sem);
+		break;
+	case UART_TX_ABORTED:
+		binding->tx_res = -EABORT;
+		k_sem_give(binding->tx_sem);
+		break;
+	case UART_RX_RDY:
+		/* buffer being read into is ready */
+		binding->rx_res = evt->rx.len;
+		/* parse the buffer */
+		for (size_t i = 0; i < evt->rx.len; i++) {
+			mctp_uart_consume(binding, evt->rx.buf[i]);
+		}
+		LOG_DBG("Buffer consume by UART, done receiving one packet");
+		break;
+	case UART_RX_BUF_REQUEST:
+		LOG_WRN("Buffer requested by UART, none to be given");
+		break;
+	case UART_RX_BUF_RELEASED:
+		break;
+	case UART_RX_STOPPED:
+		/* Ignored */
+		break;
+	}	
+}
+
+
+void mctp_uart_start_rx(struct mctp_binding_uart *uart)
+{
+	uart_rx_enable(uart->dev, &uart->rx_buf, sizeof(uart->rx_buf), K_MSEC(100));
 }
 
 int mctp_uart_tx(struct mctp_binding *b, struct mctp_pktbuf *pkt)

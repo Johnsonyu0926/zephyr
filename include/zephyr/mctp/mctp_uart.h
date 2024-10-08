@@ -54,21 +54,13 @@ struct mctp_binding_uart {
 };
 
 /**
- * @brief Poll the UART for a single character
+ * @brief Start the receive of a single mctp message
  *
- * Polls the underlying UART peripheral for a single byte of information. If a byte
- * is available it is fed into an internal state machine that decodes an MCTP packet.
- *
- * When a full packet becomes available, mctp_bus_rx is called internally eventually leading
- * back to the assigned binding's rx_control function pointer callback.
+ * Will read a single mctp message from the uart.
  *
  * @param uart MCTP UART binding
- * @param pkt MCTP packet to transmit
- *
- * @retval 0 success
- * @retval -errno Error
  */
-int mctp_uart_poll(struct mctp_binding_uart *uart);
+void mctp_uart_start_rx(struct mctp_binding_uart *uart);
 
 /** @cond INTERNAL_HIDDEN */
 int mctp_uart_start(struct mctp_binding *binding);

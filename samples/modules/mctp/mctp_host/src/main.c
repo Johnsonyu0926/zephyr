@@ -20,11 +20,14 @@ LOG_MODULE_REGISTER(mctp_host);
 
 #define REMOTE_HELLO_EID 10
 
+K_SEM_DEFINE(mctp_rx, 0, 1);
+
 static void rx_message(uint8_t eid, bool tag_owner, uint8_t msg_tag, void *data, void *msg,
 		       size_t len)
 {
 	LOG_INF("received message %s for endpoint %d, msg_tag %d, len %zu", (char *)msg, eid,
 		msg_tag, len);
+	k_sem_give(&mctp_rx);
 }
 
 MCTP_UART_DT_DEFINE(mctp_host, DEVICE_DT_GET(DT_NODELABEL(arduino_serial)));
@@ -43,20 +46,18 @@ int main(void)
 	mctp_register_bus(mctp_ctx, &mctp_host.binding, LOCAL_HELLO_EID);
 	mctp_set_rx_all(mctp_ctx, rx_message, NULL);
 
-	/* MCTP poll loop, send "hello" and get "world" back, needed as UART is polling */
+
+	mctp_uart_start_rx(&mctp_host);
+
+	/* MCTP poll loop, send "hello" and get "world" back */
 	while (true) {
 		rc = mctp_message_tx(mctp_ctx, REMOTE_HELLO_EID, false, 0, "hello",
 				     sizeof("hello"));
 		if (rc != 0) {
 			printf("Failed to send message, errno %d\n", rc);
 			k_msleep(1000);
-		} else {
-			while (true) {
-				rc = mctp_uart_poll(&mctp_host);
-				if (rc != 0) {
-					break;
-				}
-			}
+		} else 
+			k_sem_take(&mctp_rx, K_FOREVER);
 		}
 		rc = 0;
 	}
