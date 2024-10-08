@@ -253,9 +253,10 @@ class JLinkBinaryRunner(ZephyrBinaryRunner):
                        '-if', self.iface,
                        '-speed', self.speed,
                        '-device', self.device,
-                       '-silent',
+                       # '-silent',
                        '-endian', 'big' if big_endian else 'little',
-                       '-singlerun'] +
+                       #'-singlerun',
+                       ] +
                       (['-nogui'] if self.supports_nogui else []) +
                       (['-rtos', plugin_dir] if rtos else []) +
                       ['-rtttelnetport', str(self.rtt_port)] +
