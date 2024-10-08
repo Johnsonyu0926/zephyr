@@ -24,19 +24,23 @@ properties:
     type: int
     required: true
     description: |
-      Resistance of the shunt resistor in micro-ohms
+      Resistance of the shunt resistor in micro-ohms.
+
+      This value is specified in micro-ohms to maintain compatibility with the
+      Linux bindings, but internally it is rounded down to milli-ohms for
+      computational complexity reasons.
 
   sense-gain-mult:
     type: int
     default: 1
     description: |
-      Amplifier gain multiplier. The default is <1>.
+      Amplifier gain multiplier. The default is <1>. The maximum value is <65535>.
 
   sense-gain-div:
     type: int
     default: 1
     description: |
-      Amplifier gain divider. The default is <1>.
+      Amplifier gain divider. The default is <1>. The maximum value is <65535>.
 
   power-gpios:
     type: phandle-array
