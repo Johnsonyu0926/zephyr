@@ -39,6 +39,8 @@ include(CheckCXXCompilerFlag)
 # 7.2 add_llext_* build control functions
 # 7.3 llext helper functions
 # 8. Script mode handling
+# 9. Clock Management extensions
+# 9.1 Clock Management headers
 
 ########################################################
 # 1. Zephyr-aware extensions
@@ -5865,3 +5867,50 @@ if(CMAKE_SCRIPT_MODE_FILE)
     #                         'Remember to create a YAML context'
   endfunction()
 endif()
+
+########################################################
+# 9. Clock Management extensions
+########################################################
+#
+# These functions enable clock drivers to register their headers for inclusion
+# into the clock management framework. This is required to properly support
+# out of tree clock drivers, as the clock driver header needs to be included
+# within the in-tree clock management code.
+
+# 9.1 Clock Management headers
+#
+# This function permits drivers to register headers for use with the clock
+# management framework, which provide macros to extract configuration data
+# from their clock nodes in devicetree
+
+# Usage:
+#   add_clock_mgmt_header(<filename>)
+#
+# Adds the header file given by <filename> to the list of files included
+# within the clock management framework for clock drivers
+#
+function(add_clock_mgmt_header filename)
+  # Get the real path of the file
+  file(REAL_PATH "${filename}" abs_path)
+  get_property(clock_mgmt_includes TARGET clock_mgmt_header_target PROPERTY
+    COMPILE_DEFINITIONS)
+  list(APPEND clock_mgmt_includes "${abs_path}")
+  set_property(TARGET clock_mgmt_header_target PROPERTY COMPILE_DEFINITIONS
+    "${clock_mgmt_includes}")
+endfunction()
+
+# Usage:
+#   add_clock_mgmt_header_ifdef(<setting> <filename>)
+#
+# Will add header to clock management framework if <setting> is enabled.
+#
+# <setting>: Setting to check for True value before invoking
+#            add_clock_mgmt_header()
+#
+# See add_clock_mgmt_header() description for other supported arguments.
+#
+macro(add_clock_mgmt_header_ifdef feature_toggle)
+  if(${${feature_toggle}})
+    add_clock_mgmt_header(${ARGN})
+  endif()
+endmacro()
