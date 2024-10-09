@@ -166,7 +166,7 @@ config BT_BAP_BROADCAST_SINK
 	bool "Bluetooth Broadcast Sink Audio Support"
 	select BT_ISO_SYNC_RECEIVER
 	select BT_AUDIO_RX
-	select BT_PAC_SNK
+	depends on BT_PAC_SNK
 	depends on BT_PERIPHERAL
 	depends on BT_BAP_SCAN_DELEGATOR
 	help
@@ -211,7 +211,7 @@ config BT_BAP_SCAN_DELEGATOR
 	select BT_EXT_ADV
 	select BT_PER_ADV_SYNC
 	select BT_ISO_SYNC_RECEIVER
-	select BT_GATT_DYNAMIC_DB
+	depends on BT_GATT_DYNAMIC_DB
 	depends on BT_BONDABLE
 	help
 	  This option enables support for the Scan Delegator role and the
