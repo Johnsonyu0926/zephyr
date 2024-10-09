@@ -28,7 +28,7 @@ struct vdev_config {
 	const char *vring0_name;
 	const char *vring1_name;
 	const char *buffer_name;
-	unsigned idx;
+	unsigned int idx;
 };
 
 
@@ -85,7 +85,7 @@ static void vdev_rx_thread(void *dev_ptr, void *p2, void *p3)
 
 	static struct rpmsg_endpoint ept_rpc;
 
-	struct rpmsg_device * rpdev = rpmsg_virtio_get_rpmsg_device(&data->rvdev);
+	struct rpmsg_device *rpdev = rpmsg_virtio_get_rpmsg_device(&data->rvdev);
 
 	if (!rpdev) {
 		LOG_ERR("rpmsg_virtio_get_rpmsg_device failed\n");
@@ -154,19 +154,19 @@ static int vdev_init(const struct device *dev)
 	}
 
 	buffer_io = rsc_table_get_carveout_io_region(buffer_carveout);
-	if(!buffer_io) {
+	if (!buffer_io) {
 		LOG_ERR("buffer_io not found");
 		return -1;
 	}
 
 	vring0_carveout = rsc_table_get_carveout_by_name(config->vring0_name);
-	if(!vring0_carveout) {
+	if (!vring0_carveout) {
 		LOG_ERR("vring0_carveout not found");
 		return -1;
 	}
 
 	vring0_io = rsc_table_get_carveout_io_region(vring0_carveout);
-	if(!vring0_io) {
+	if (!vring0_io) {
 		LOG_ERR("vring0_io not found");
 		return -1;
 	}

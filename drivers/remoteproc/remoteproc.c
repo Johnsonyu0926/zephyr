@@ -72,9 +72,9 @@ extern char ram_console_buf[];
 
 #define CARVEOUT_ENTRY(node_id, prop, idx) (struct fw_rsc_carveout) {  \
 	.type = RSC_CARVEOUT,  \
-    .da = 	DT_REG_ADDR(DT_PHANDLE_BY_IDX(node_id, carveouts, idx)),  \
-    .pa = DT_REG_ADDR(DT_PHANDLE_BY_IDX(node_id, carveouts, idx)),  \
-    .len = DT_REG_SIZE(DT_PHANDLE_BY_IDX(node_id, carveouts, idx)),  \
+	.da = 	DT_REG_ADDR(DT_PHANDLE_BY_IDX(node_id, carveouts, idx)),  \
+	.pa = DT_REG_ADDR(DT_PHANDLE_BY_IDX(node_id, carveouts, idx)),  \
+	.len = DT_REG_SIZE(DT_PHANDLE_BY_IDX(node_id, carveouts, idx)),  \
 	.flags = 0,  \
 	.name = DT_PROP_BY_PHANDLE_IDX(node_id, carveouts, idx, zephyr_memory_region) \
 	},
@@ -88,12 +88,12 @@ extern char ram_console_buf[];
 	},  \
 	.vring0 = {  \
 		.da = VRING_TX_ADDRESS, .align = VRING_ALIGNMENT,  \
-        .num = DT_PROP(node_id, num_tx_buffers),  \
+		.num = DT_PROP(node_id, num_tx_buffers),  \
 		.notifyid = VRING0_ID, 0  \
 	},  \
 	.vring1 = {  \
 		.da = VRING_RX_ADDRESS, .align = VRING_ALIGNMENT,  \
-        .num = DT_PROP(node_id,num_rx_buffers),  \
+		.num = DT_PROP(node_id, num_rx_buffers),  \
 		.notifyid = VRING1_ID, 0  \
 	}  \
 },
@@ -188,7 +188,7 @@ static struct  {
 	const struct fw_rsc_carveout *carveout;
 	struct metal_io_region region;
 } carveout_lookup_table[NUM_CARVEOUTS] = {
-    FOREACH_CARVEOUT(CARVEOUT_LOOKUP_ENTRY)
+	FOREACH_CARVEOUT(CARVEOUT_LOOKUP_ENTRY)
 };
 #endif
 
@@ -203,7 +203,7 @@ size_t rsc_table_get_size(void)
 	return sizeof(resource_table);
 }
 
-unsigned rsc_table_get_num_carveouts(void)
+unsigned int rsc_table_get_num_carveouts(void)
 {
 	return NUM_CARVEOUTS;
 }
@@ -221,7 +221,7 @@ struct fw_rsc_carveout *rsc_table_get_carveout_by_name(const char *name)
 	return NULL;
 }
 
-struct fw_rsc_carveout *rsc_table_get_carveout_by_idx(unsigned idx)
+struct fw_rsc_carveout *rsc_table_get_carveout_by_idx(unsigned int idx)
 {
 #if NUM_CARVEOUTS > 0
 	struct fw_resource_table *rsc_table = &resource_table;
@@ -235,7 +235,7 @@ struct fw_rsc_carveout *rsc_table_get_carveout_by_idx(unsigned idx)
 #endif
 }
 
-struct fw_rsc_vdev *rsc_table_get_vdev(unsigned vdev_idx)
+struct fw_rsc_vdev *rsc_table_get_vdev(unsigned int vdev_idx)
 {
 #if NUM_VDEVS > 0
 	struct fw_resource_table *rsc_table = &resource_table;
@@ -250,7 +250,7 @@ struct fw_rsc_vdev *rsc_table_get_vdev(unsigned vdev_idx)
 #endif
 }
 
-struct fw_rsc_vdev_vring *rsc_table_get_vring0(unsigned vdev_idx)
+struct fw_rsc_vdev_vring *rsc_table_get_vring0(unsigned int vdev_idx)
 {
 #if NUM_VDEVS > 0
 	struct fw_resource_table *rsc_table = &resource_table;
@@ -264,7 +264,7 @@ struct fw_rsc_vdev_vring *rsc_table_get_vring0(unsigned vdev_idx)
 #endif
 }
 
-struct fw_rsc_vdev_vring *rsc_table_get_vring1(unsigned vdev_idx)
+struct fw_rsc_vdev_vring *rsc_table_get_vring1(unsigned int vdev_idx)
 {
 #if NUM_VDEVS > 0
 	struct fw_resource_table *rsc_table = &resource_table;
@@ -297,7 +297,7 @@ static int metal_init_once(void)
 		for (int i = 0; i < NUM_CARVEOUTS; i++) {
 			const struct fw_rsc_carveout *carveout = carveout_lookup_table[i].carveout;
 			struct metal_io_region *region = &carveout_lookup_table[i].region;
-			metal_io_init(region, (void*)carveout->da,
+			metal_io_init(region, (void *)carveout->da,
 						(metal_phys_addr_t *)&carveout->pa, carveout->len, -1, 0, NULL);
 			LOG_INF("metal_init: name=%s: %x\n", carveout->name, carveout->da);
 		}

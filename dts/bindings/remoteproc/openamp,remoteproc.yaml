@@ -14,5 +14,3 @@ properties:
     type: phandles
     required: true
     description: carveout for the shared memory
-
-
