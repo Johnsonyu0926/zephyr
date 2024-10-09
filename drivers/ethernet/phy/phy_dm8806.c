@@ -302,107 +302,6 @@ static int phy_dm8806_get_link_state(const struct device *dev, struct phy_link_s
 	return ret;
 }
 
-static int phy_dm8806_get_mac_address(const struct device *dev, uint8_t port, uint16_t *mac)
-{
-	int ret;
-	uint16_t buff;
-	const struct phy_dm8806_config *cfg = dev->config;
-
-	/* Check the busy bit of Address Table Control & Status Register */
-	do {
-		ret = mdio_read(cfg->mdio, ADDR_TAB_CTRL_STAT_PHY_ADDR, ADDR_TAB_CTRL_STAT_REG_ADDR,
-				&buff);
-	} while (buff >>= ATB_S_OFFSET);
-
-	/* Write the entry sequence to the Address Table Data 1 Register */
-	for (uint16_t cnt = 0; cnt <= 2048; cnt++) {
-		ret = mdio_write(cfg->mdio, ADDR_TAB_DATA1_PHY_ADDR, ADDR_TAB_DATA1_REG_ADDR, cnt);
-		if (ret) {
-			LOG_ERR("Failed to write entry sequence to DM8806");
-		}
-
-		/* Write the “READ” command and assign the target table to Address Table
-		 * Control & Status Register
-		 */
-		ret = mdio_read(cfg->mdio, ADDR_TAB_CTRL_STAT_PHY_ADDR, ADDR_TAB_CTRL_STAT_REG_ADDR,
-				&buff);
-		if (ret) {
-			LOG_ERR("Failed to write entry sequence to DM8806");
-			return -EIO;
-		}
-		buff &= ~(ATB_CMD_READ);
-		buff &= ~(UNICAST_ADDR_TAB);
-		ret = mdio_write(cfg->mdio, ADDR_TAB_CTRL_STAT_PHY_ADDR,
-				 ADDR_TAB_CTRL_STAT_REG_ADDR, buff);
-
-		/* Check the busy bit of Address Table Control & Status Register again */
-		do {
-			ret = mdio_read(cfg->mdio, ADDR_TAB_CTRL_STAT_PHY_ADDR,
-					ADDR_TAB_CTRL_STAT_REG_ADDR, &buff);
-		} while (buff >>= ATB_S_OFFSET);
-
-		/* Read the command status from Address Table Control & Status Register */
-		ret = mdio_read(cfg->mdio, ADDR_TAB_CTRL_STAT_PHY_ADDR, ADDR_TAB_CTRL_STAT_REG_ADDR,
-				&buff);
-		if (ret) {
-			LOG_ERR("Failed to write entry sequence to DM8806");
-			return -EIO;
-		}
-		/* Check existence of the requested entry */
-		buff >>= ATB_CR_OFFSET;
-		buff &= ATB_CR_MASK;
-		if (buff) {
-			/* Read the Port Number or Port Map to Address Table Data 0 Register */
-			ret = mdio_read(cfg->mdio, ADDR_TAB_DATA0_PHY_ADDR, ADDR_TAB_DATA0_REG_ADDR,
-					&buff);
-			if (ret) {
-				LOG_ERR("Failed to read port number from DM8806");
-				return -EIO;
-			}
-			buff &= ATB_PORT_MASK;
-			/* Finish searching MAC address table if requested port number
-			 * exists.
-			 */
-			if (buff == port) {
-				break;
-			}
-		}
-	}
-	/* Read the entry’s MAC address from Address Table Data 1 Register for
-	 * requested port number.
-	 */
-	ret = mdio_read(cfg->mdio, ADDR_TAB_DATA1_PHY_ADDR, ADDR_TAB_DATA1_REG_ADDR, &buff);
-	if (ret) {
-		LOG_ERR("Failed to read the entry MAC address ADT1 from DM8806");
-		return -EIO;
-	}
-	*mac = buff;
-	mac++;
-
-	/* Read the entries MAC address from Address Table Data 2 Register for
-	 * requested port number.
-	 */
-	ret = mdio_read(cfg->mdio, ADDR_TAB_DATA2_PHY_ADDR, ADDR_TAB_DATA2_REG_ADDR, &buff);
-	if (ret) {
-		LOG_ERR("Failed to read the entry’s MAC address ADT2 from DM8806");
-		return -EIO;
-	}
-	*mac = buff;
-	mac++;
-
-	/* Read the entries MAC address from Address Table Data 3 Register for
-	 * requested port number.
-	 */
-	ret = mdio_read(cfg->mdio, ADDR_TAB_DATA3_PHY_ADDR, ADDR_TAB_DATA3_REG_ADDR, &buff);
-	if (ret) {
-		LOG_ERR("Failed to read the entry’s MAC address ADT3 from DM8806");
-		return -EIO;
-	}
-	*mac = buff;
-
-	return ret;
-}
-
 static int phy_dm8806_cfg_link(const struct device *dev, enum phy_link_speed adv_speeds)
 {
 	uint8_t ret;
@@ -430,14 +329,14 @@ static int phy_dm8806_cfg_link(const struct device *dev, enum phy_link_speed adv
 	}
 
 	/* Power down */
-	ret = mdio_read(cfg->mdio, cfg->phy_addr, PORTX_PHY_CONTROLL_REGISTER, &data);
+	ret = mdio_read(cfg->mdio, cfg->phy_addr, PORTX_PHY_CONTROL_REGISTER, &data);
 	if (ret) {
 		LOG_ERR("Failes to read data drom DM8806");
 		return ret;
 	}
 	k_busy_wait(500);
 	data |= POWER_DOWN;
-	ret = mdio_write(cfg->mdio, cfg->phy_addr, PORTX_PHY_CONTROLL_REGISTER, data);
+	ret = mdio_write(cfg->mdio, cfg->phy_addr, PORTX_PHY_CONTROL_REGISTER, data);
 	if (ret) {
 		LOG_ERR("Failed to write data to DM8806");
 		return ret;
@@ -445,14 +344,14 @@ static int phy_dm8806_cfg_link(const struct device *dev, enum phy_link_speed adv
 	k_busy_wait(500);
 
 	/* Turn off the auto-negotiation process. */
-	ret = mdio_read(cfg->mdio, cfg->phy_addr, PORTX_PHY_CONTROLL_REGISTER, &data);
+	ret = mdio_read(cfg->mdio, cfg->phy_addr, PORTX_PHY_CONTROL_REGISTER, &data);
 	if (ret) {
 		LOG_ERR("Failed to write data to DM8806");
 		return ret;
 	}
 	k_busy_wait(500);
 	data &= ~(AUTO_NEGOTIATION);
-	ret = mdio_write(cfg->mdio, cfg->phy_addr, PORTX_PHY_CONTROLL_REGISTER, data);
+	ret = mdio_write(cfg->mdio, cfg->phy_addr, PORTX_PHY_CONTROL_REGISTER, data);
 	if (ret) {
 		LOG_ERR("Failed to write data to DM8806");
 		return ret;
@@ -460,7 +359,7 @@ static int phy_dm8806_cfg_link(const struct device *dev, enum phy_link_speed adv
 	k_busy_wait(500);
 
 	/* Change the link speed. */
-	ret = mdio_read(cfg->mdio, cfg->phy_addr, PORTX_PHY_CONTROLL_REGISTER, &data);
+	ret = mdio_read(cfg->mdio, cfg->phy_addr, PORTX_PHY_CONTROL_REGISTER, &data);
 	if (ret) {
 		LOG_ERR("Failed to read data from DM8806");
 		return ret;
@@ -468,7 +367,7 @@ static int phy_dm8806_cfg_link(const struct device *dev, enum phy_link_speed adv
 	k_busy_wait(500);
 	data &= ~(LINK_SPEED | DUPLEX_MODE);
 	data |= req_speed;
-	ret = mdio_write(cfg->mdio, cfg->phy_addr, PORTX_PHY_CONTROLL_REGISTER, data);
+	ret = mdio_write(cfg->mdio, cfg->phy_addr, PORTX_PHY_CONTROL_REGISTER, data);
 	if (ret) {
 		LOG_ERR("Failed to write data to DM8806");
 		return ret;
@@ -476,14 +375,14 @@ static int phy_dm8806_cfg_link(const struct device *dev, enum phy_link_speed adv
 	k_busy_wait(500);
 
 	/* Power up ethernet port*/
-	ret = mdio_read(cfg->mdio, cfg->phy_addr, PORTX_PHY_CONTROLL_REGISTER, &data);
+	ret = mdio_read(cfg->mdio, cfg->phy_addr, PORTX_PHY_CONTROL_REGISTER, &data);
 	if (ret) {
 		LOG_ERR("Failes to read data drom DM8806");
 		return ret;
 	}
 	k_busy_wait(500);
 	data &= ~(POWER_DOWN);
-	ret = mdio_write(cfg->mdio, cfg->phy_addr, PORTX_PHY_CONTROLL_REGISTER, data);
+	ret = mdio_write(cfg->mdio, cfg->phy_addr, PORTX_PHY_CONTROL_REGISTER, data);
 	if (ret) {
 		LOG_ERR("Failed to write data to DM8806");
 		return ret;
