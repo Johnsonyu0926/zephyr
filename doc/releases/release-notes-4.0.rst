@@ -56,6 +56,10 @@ Deprecated in this release
 
 * The :ref:`kscan_api` subsystem has been marked as deprecated.
 
+* TinyCrypt library has been marked as deprecated (:github:`?`). This follows the recent
+  transition toward the adoption of PSA Crypto APIs as the suggested
+  interface to perform crypto operations (:github:`43712``).
+
 Architectures
 *************
 

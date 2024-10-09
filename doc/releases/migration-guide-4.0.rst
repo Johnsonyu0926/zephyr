@@ -75,6 +75,13 @@ Mbed TLS
   corresponding build symbol was removed in Mbed TLS 3.1.0 and is now assumed to
   be enabled. (:github:`77657`)
 
+TinyCrypt
+=========
+
+* Starting from this release the library is being marked as deprecated (:github:`?``).
+  This follows the recent transition toward the adoption of PSA Crypto APIs as the suggested
+  interface to perform crypto operations (:github:`43712``).
+
 Trusted Firmware-M
 ==================
 
