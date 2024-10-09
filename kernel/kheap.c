@@ -116,6 +116,28 @@ void *k_heap_alloc(struct k_heap *heap, size_t bytes, k_timeout_t timeout)
 	return ret;
 }
 
+void *k_heap_calloc(struct k_heap *heap, size_t num, size_t size, k_timeout_t timeout)
+{
+	SYS_PORT_TRACING_OBJ_FUNC_ENTER(k_heap, calloc, heap, timeout);
+
+	void *ret = NULL;
+	size_t bounds = 0U;
+	size_t aligned_bounds = 0U;
+
+	if (!size_mul_overflow(num, size, &bounds) &&
+	    !size_add_overflow(bounds, sizeof(void *) - 1, &aligned_bounds)) {
+		ret = k_heap_aligned_alloc(heap, sizeof(void *), bounds, timeout);
+	}
+	if (ret != NULL) {
+		aligned_bounds &= ~(sizeof(void *) - 1);
+		(void)memset(ret, 0, aligned_bounds);
+	}
+
+	SYS_PORT_TRACING_OBJ_FUNC_EXIT(k_heap, calloc, heap, timeout, ret);
+
+	return ret;
+}
+
 void *k_heap_realloc(struct k_heap *heap, void *ptr, size_t bytes, k_timeout_t timeout)
 {
 	k_timepoint_t end = sys_timepoint_calc(timeout);
