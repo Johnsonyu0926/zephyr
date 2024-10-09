@@ -3,6 +3,6 @@
 
 description: ST STM32 Ethernet
 
-compatible: "st,stm32-ethernet"
+compatible: "st,stm32h7-ethernet"
 
 include: st,stm32-ethernet-common.yaml
