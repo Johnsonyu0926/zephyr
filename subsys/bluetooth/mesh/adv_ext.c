@@ -69,6 +69,14 @@ struct bt_mesh_ext_adv {
 static void send_pending_adv(struct k_work *work);
 static bool schedule_send(struct bt_mesh_ext_adv *ext_adv);
 
+#if defined(CONFIG_BT_MESH_WORKQ_MESH)
+static struct k_work_q bt_mesh_workq;
+#define MESH_WORKQ_THREAD &bt_mesh_workq.thread
+static K_KERNEL_STACK_DEFINE(thread_stack, CONFIG_BT_MESH_ADV_STACK_SIZE);
+#else  /* CONFIG_BT_MESH_WORKQ_SYS */
+#define MESH_WORKQ_THREAD &k_sys_work_q.thread
+#endif /* CONFIG_BT_MESH_WORKQ_MESH */
+
 static struct bt_mesh_ext_adv advs[] = {
 	[0] = {
 		.tags = (
@@ -133,6 +141,18 @@ static inline struct bt_mesh_ext_adv *gatt_adv_get(void)
 		return &advs[ARRAY_SIZE(advs) - 1];
 	} else {
 		return &advs[0];
+	}
+}
+
+static void work_submit(struct k_work *work)
+{
+#if defined(CONFIG_BT_MESH_WORKQ_SYS)
+	const int err = k_work_submit(work);
+#elif defined(CONFIG_BT_MESH_WORKQ_MESH)
+	const int err = k_work_submit_to_queue(&bt_mesh_workq, work);
+#endif /* CONFIG_BT_MESH_WORKQ_MESH */
+	if (err < 0) {
+		LOG_ERR("Could not submit work: %d", err);
 	}
 }
 
@@ -335,7 +355,7 @@ static bool schedule_send(struct bt_mesh_ext_adv *ext_adv)
 	}
 
 	atomic_clear_bit(ext_adv->flags, ADV_FLAG_SCHEDULE_PENDING);
-	k_work_submit(&ext_adv->work);
+	work_submit(&ext_adv->work);
 
 	return true;
 }
@@ -402,7 +422,7 @@ int bt_mesh_adv_terminate(struct bt_mesh_adv *adv)
 
 		atomic_set_bit(ext_adv->flags, ADV_FLAG_SENT);
 
-		k_work_submit(&ext_adv->work);
+		work_submit(&ext_adv->work);
 
 		return 0;
 	}
@@ -424,6 +444,13 @@ void bt_mesh_adv_init(void)
 	for (int i = 0; i < ARRAY_SIZE(advs); i++) {
 		(void)memcpy(&advs[i].adv_param, &adv_param, sizeof(adv_param));
 	}
+
+#if defined(CONFIG_BT_MESH_WORKQ_MESH)
+	k_work_queue_init(&bt_mesh_workq);
+	k_work_queue_start(&bt_mesh_workq, thread_stack, CONFIG_BT_MESH_ADV_STACK_SIZE,
+			   K_PRIO_COOP(CONFIG_BT_MESH_ADV_PRIO), NULL);
+	k_thread_name_set(&bt_mesh_workq.thread, "BT MESH WQ");
+#endif
 }
 
 static struct bt_mesh_ext_adv *adv_instance_find(struct bt_le_ext_adv *instance)
@@ -453,7 +480,7 @@ static void adv_sent(struct bt_le_ext_adv *instance,
 
 	atomic_set_bit(ext_adv->flags, ADV_FLAG_SENT);
 
-	k_work_submit(&ext_adv->work);
+	work_submit(&ext_adv->work);
 }
 
 #if defined(CONFIG_BT_MESH_GATT_SERVER)
@@ -498,14 +525,14 @@ int bt_mesh_adv_enable(void)
 
 int bt_mesh_adv_disable(void)
 {
-	int err;
 	struct k_work_sync sync;
+	int err;
 
 	for (int i = 0; i < ARRAY_SIZE(advs); i++) {
 		atomic_set_bit(advs[i].flags, ADV_FLAG_SUSPENDING);
 
-		if (k_current_get() != &k_sys_work_q.thread ||
-		    (k_work_busy_get(&advs[i].work) & K_WORK_RUNNING) == 0) {
+		if ((k_current_get() != MESH_WORKQ_THREAD) ||
+		    !(k_work_busy_get(&advs[i].work) & K_WORK_RUNNING)) {
 			k_work_flush(&advs[i].work, &sync);
 		}
 
