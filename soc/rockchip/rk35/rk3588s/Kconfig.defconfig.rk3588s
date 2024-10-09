@@ -4,7 +4,6 @@
 if SOC_RK3588S
 
 config NUM_IRQS
-	int
 	default 544
 
 config FLASH_SIZE

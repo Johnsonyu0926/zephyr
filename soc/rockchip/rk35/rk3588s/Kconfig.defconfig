@@ -1,7 +1,7 @@
 # Copyright 2024 Université Gustave Eiffel
 # SPDX-License-Identifier: Apache-2.0
 
-if SOC_SERIES_RK3588S
+if SOC_RK3588S
 
 rsource "Kconfig.defconfig.rk3588s"
 

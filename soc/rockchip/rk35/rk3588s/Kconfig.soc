@@ -3,14 +3,7 @@
 
 config SOC_RK3588S
 	bool
-	select SOC_SERIES_RK3588S
-
-config SOC_SERIES_RK3588S
-	bool
-	select SOC_FAMILY_ROCKCHIP
+	select SOC_SERIES_RK35
 
 config SOC
 	default "rk3588s" if SOC_RK3588S
-
-config SOC_SERIES
-	default "rk3588s" if SOC_SERIES_RK3588S
