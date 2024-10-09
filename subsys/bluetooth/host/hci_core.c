@@ -1904,6 +1904,16 @@ static void le_conn_update_complete(struct net_buf *buf)
 	LOG_DBG("status 0x%02x %s, handle %u",
 		evt->status, bt_hci_err_to_str(evt->status), handle);
 
+	if (!IN_RANGE(sys_le16_to_cpu(evt->interval), BT_HCI_LE_INTERVAL_MIN, BT_HCI_LE_INTERVAL_MAX)) {
+		LOG_WRN("interval exceeds the valid range 0x%04x", sys_le16_to_cpu(evt->interval));
+	}
+	if (BT_HCI_LE_PERIPHERAL_LATENCY_MAX < sys_le16_to_cpu(evt->latency)) {
+		LOG_WRN("latency exceeds the valid range 0x%04x", sys_le16_to_cpu(evt->latency));
+	}
+	if (!IN_RANGE(sys_le16_to_cpu(evt->supv_timeout), BT_HCI_LE_SUPERVISON_TIMEOUT_MIN, BT_HCI_LE_SUPERVISON_TIMEOUT_MAX)) {
+		LOG_WRN("supv_timeout exceeds the valid range 0x%04x", sys_le16_to_cpu(evt->supv_timeout));
+	}
+
 	conn = bt_conn_lookup_handle(handle, BT_CONN_TYPE_LE);
 	if (!conn) {
 		LOG_ERR("Unable to lookup conn for handle %u", handle);
@@ -2613,6 +2623,19 @@ void bt_hci_le_subrate_change_event(struct net_buf *buf)
 	struct bt_conn *conn;
 
 	evt = net_buf_pull_mem(buf, sizeof(*evt));
+
+	if (!IN_RANGE(sys_le16_to_cpu(evt->subrate_factor), BT_HCI_LE_SUBRATE_FACTOR_MIN, BT_HCI_LE_SUBRATE_FACTOR_MAX)) {
+		LOG_WRN("subrate_factor exceeds the valid range %d", sys_le16_to_cpu(evt->subrate_factor));
+	}
+	if (BT_HCI_LE_PERIPHERAL_LATENCY_MAX < sys_le16_to_cpu(evt->peripheral_latency)) {
+		LOG_WRN("peripheral_latency exceeds the valid range 0x%04x", sys_le16_to_cpu(evt->peripheral_latency));
+	}
+	if (BT_HCI_LE_CONTINUATION_NUM_MAX < sys_le16_to_cpu(evt->continuation_number)) {
+		LOG_WRN("continuation_number exceeds the valid range %d", sys_le16_to_cpu(evt->continuation_number));
+	}
+	if (!IN_RANGE(sys_le16_to_cpu(evt->supervision_timeout), BT_HCI_LE_SUPERVISON_TIMEOUT_MIN, BT_HCI_LE_SUPERVISON_TIMEOUT_MAX)) {
+		LOG_WRN("supervision_timeout exceeds the valid range 0x%04x", sys_le16_to_cpu(evt->supervision_timeout));
+	}
 
 	conn = bt_conn_lookup_handle(sys_le16_to_cpu(evt->handle), BT_CONN_TYPE_LE);
 	if (!conn) {
