@@ -1,11 +1,32 @@
 # Copyright (c) 2021, Pete Johanson
 # SPDX-License-Identifier: Apache-2.0
 
-description: RaspberryPi Pico USB Device Controller
+description: |
+  RaspberryPi Pico USB Device Controller.
+
+  When the rp2040 is operated as a self powered device,
+  VBUS detection needs to be enabled to ensure the correct
+  pull up handling on the data lines.
+  Example of enabling the controller with vbus detection:
+
+    &pinctrl {
+      usb_default: usb_default {
+          group1 {
+              pinmux = <USB_VBUS_DET_P1>;
+              input-enable;
+          };
+      };
+    };
+
+    zephyr_udc0: &usbd {
+      status = "okay";
+      pinctrl-0 = <&usb_default>;
+      pinctrl-names = "default";
+    };
 
 compatible: "raspberrypi,pico-usbd"
 
-include: [usb-ep.yaml, reset-device.yaml]
+include: [usb-ep.yaml, reset-device.yaml, pinctrl-device.yaml]
 
 properties:
   reg:
