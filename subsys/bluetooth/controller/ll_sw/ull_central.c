@@ -253,6 +253,7 @@ uint8_t ll_create_connection(uint16_t scan_interval, uint16_t scan_window,
 	conn_lll->role = 0;
 	conn_lll->central.initiated = 0;
 	conn_lll->central.cancelled = 0;
+	conn_lll->central.forced = 0;
 	/* FIXME: END: Move to ULL? */
 #if defined(CONFIG_BT_CTLR_CONN_META)
 	memset(&conn_lll->conn_meta, 0, sizeof(conn_lll->conn_meta));
@@ -310,6 +311,11 @@ uint8_t ll_create_connection(uint16_t scan_interval, uint16_t scan_window,
 	/* Re-initialize the Tx Q */
 	ull_tx_q_init(&conn->tx_q);
 
+	conn_lll->tifs_tx_us = EVENT_IFS_DEFAULT_US;
+	conn_lll->tifs_rx_us = EVENT_IFS_DEFAULT_US;
+	conn_lll->tifs_hcto_us = EVENT_IFS_DEFAULT_US;
+	conn_lll->tifs_cis_us = EVENT_IFS_DEFAULT_US;
+
 	/* TODO: active_to_start feature port */
 	conn->ull.ticks_active_to_start = 0U;
 	conn->ull.ticks_prepare_to_start =
@@ -362,7 +368,7 @@ conn_is_valid:
 
 	/* Calculate event time reservation */
 	slot_us = max_tx_time + max_rx_time;
-	slot_us += EVENT_IFS_US + (EVENT_CLOCK_JITTER_US << 1);
+	slot_us += conn_lll->tifs_rx_us + (EVENT_CLOCK_JITTER_US << 1);
 	slot_us += ready_delay_us;
 	slot_us += EVENT_OVERHEAD_START_US + EVENT_OVERHEAD_END_US;
 

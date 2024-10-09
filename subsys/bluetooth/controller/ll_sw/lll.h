@@ -16,11 +16,12 @@
 
 #define EVENT_PIPELINE_MAX 7
 
-#define ADV_INT_UNIT_US      625U
-#define SCAN_INT_UNIT_US     625U
-#define CONN_INT_UNIT_US     1250U
-#define ISO_INT_UNIT_US      CONN_INT_UNIT_US
-#define PERIODIC_INT_UNIT_US CONN_INT_UNIT_US
+#define ADV_INT_UNIT_US          625U
+#define SCAN_INT_UNIT_US         625U
+#define CONN_INT_UNIT_US         1250U
+#define ISO_INT_UNIT_US          CONN_INT_UNIT_US
+#define PERIODIC_INT_UNIT_US     CONN_INT_UNIT_US
+#define CONN_LOW_LAT_INT_UNIT_US 500U
 
 #define ISO_INTERVAL_TO_US(interval) ((interval) * ISO_INT_UNIT_US)
 
@@ -242,6 +243,9 @@ struct lll_hdr {
 
 struct lll_prepare_param {
 	uint32_t ticks_at_expire;
+#if defined(CONFIG_BT_CTLR_SYNC_ISO_SLOT_WINDOW_JITTER)
+	uint32_t ticks_drift;
+#endif /* CONFIG_BT_CTLR_SYNC_ISO_SLOT_WINDOW_JITTER */
 	uint32_t remainder;
 	uint16_t lazy;
 #if defined(CONFIG_BT_CTLR_JIT_SCHEDULING)
@@ -509,6 +513,7 @@ struct event_done_extra {
 				struct {
 					uint16_t trx_cnt;
 					uint8_t  crc_valid:1;
+					uint8_t  is_aborted:1;
 #if defined(CONFIG_BT_CTLR_SYNC_ISO)
 					uint8_t  estab_failed:1;
 #endif /* CONFIG_BT_CTLR_SYNC_ISO */

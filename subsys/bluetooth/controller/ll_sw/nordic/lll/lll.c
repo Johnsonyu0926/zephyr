@@ -45,6 +45,7 @@
 static struct {
 	struct {
 		void              *param;
+		uint32_t          ticks_at_expire;
 		lll_is_abort_cb_t is_abort_cb;
 		lll_abort_cb_t    abort_cb;
 	} curr;
@@ -114,6 +115,33 @@ ISR_DIRECT_DECLARE(radio_nrf5_isr)
 	return 1;
 #endif /* !CONFIG_DYNAMIC_DIRECT_INTERRUPTS */
 }
+
+#if defined(CONFIG_BT_CTLR_RADIO_TIMER_ISR)
+#if defined(CONFIG_BT_CTLR_DYNAMIC_INTERRUPTS) && \
+	defined(CONFIG_DYNAMIC_DIRECT_INTERRUPTS)
+static void timer_nrf5_isr(const void *arg)
+#else /* !CONFIG_BT_CTLR_DYNAMIC_INTERRUPTS */
+ISR_DIRECT_DECLARE(timer_nrf5_isr)
+#endif /* !CONFIG_BT_CTLR_DYNAMIC_INTERRUPTS */
+{
+	DEBUG_RADIO_ISR(1);
+
+	lll_prof_enter_radio();
+
+	isr_radio_tmr();
+
+	ISR_DIRECT_PM();
+
+	lll_prof_exit_radio();
+
+	DEBUG_RADIO_ISR(0);
+
+#if !defined(CONFIG_BT_CTLR_DYNAMIC_INTERRUPTS) || \
+	!defined(CONFIG_DYNAMIC_DIRECT_INTERRUPTS)
+	return 1;
+#endif /* !CONFIG_DYNAMIC_DIRECT_INTERRUPTS */
+}
+#endif /* CONFIG_BT_CTLR_RADIO_TIMER_ISR */
 
 static void rtc0_nrf5_isr(const void *arg)
 {
@@ -221,9 +249,19 @@ int lll_init(void)
 				       IRQ_CONNECT_FLAGS, no_reschedule);
 	irq_connect_dynamic(HAL_RADIO_IRQn, CONFIG_BT_CTLR_LLL_PRIO,
 			    radio_nrf5_isr, NULL, IRQ_CONNECT_FLAGS);
+#if defined(CONFIG_BT_CTLR_RADIO_TIMER_ISR)
+	ARM_IRQ_DIRECT_DYNAMIC_CONNECT(TIMER0_IRQn, CONFIG_BT_CTLR_LLL_PRIO,
+				       IRQ_CONNECT_FLAGS, no_reschedule);
+	irq_connect_dynamic(TIMER0_IRQn, CONFIG_BT_CTLR_LLL_PRIO,
+			    timer_nrf5_isr, NULL, IRQ_CONNECT_FLAGS);
+#endif /* CONFIG_BT_CTLR_RADIO_TIMER_ISR */
 #else /* !CONFIG_DYNAMIC_DIRECT_INTERRUPTS */
 	IRQ_DIRECT_CONNECT(HAL_RADIO_IRQn, CONFIG_BT_CTLR_LLL_PRIO,
 			   radio_nrf5_isr, IRQ_CONNECT_FLAGS);
+#if defined(CONFIG_BT_CTLR_RADIO_TIMER_ISR)
+	IRQ_DIRECT_CONNECT(TIMER0_IRQn, CONFIG_BT_CTLR_LLL_PRIO,
+			   timer_nrf5_isr, IRQ_CONNECT_FLAGS);
+#endif /* CONFIG_BT_CTLR_RADIO_TIMER_ISR */
 #endif /* !CONFIG_DYNAMIC_DIRECT_INTERRUPTS */
 	irq_connect_dynamic(HAL_RTC_IRQn, CONFIG_BT_CTLR_ULL_HIGH_PRIO,
 			    rtc0_nrf5_isr, NULL, 0U);
@@ -238,6 +276,10 @@ int lll_init(void)
 #else /* !CONFIG_BT_CTLR_DYNAMIC_INTERRUPTS */
 	IRQ_DIRECT_CONNECT(HAL_RADIO_IRQn, CONFIG_BT_CTLR_LLL_PRIO,
 			   radio_nrf5_isr, IRQ_CONNECT_FLAGS);
+#if defined(CONFIG_BT_CTLR_RADIO_TIMER_ISR)
+	IRQ_DIRECT_CONNECT(TIMER0_IRQn, CONFIG_BT_CTLR_LLL_PRIO,
+			   timer_nrf5_isr, IRQ_CONNECT_FLAGS);
+#endif /* CONFIG_BT_CTLR_RADIO_TIMER_ISR */
 	IRQ_CONNECT(HAL_RTC_IRQn, CONFIG_BT_CTLR_ULL_HIGH_PRIO,
 		    rtc0_nrf5_isr, NULL, 0);
 #if defined(CONFIG_BT_CTLR_ZLI)
@@ -298,6 +340,10 @@ int lll_deinit(void)
 #if defined(CONFIG_DYNAMIC_DIRECT_INTERRUPTS)
 	irq_disconnect_dynamic(HAL_RADIO_IRQn, CONFIG_BT_CTLR_LLL_PRIO,
 			       radio_nrf5_isr, NULL, IRQ_CONNECT_FLAGS);
+#if defined(CONFIG_BT_CTLR_RADIO_TIMER_ISR)
+	irq_disconnect_dynamic(TIMER0_IRQn, CONFIG_BT_CTLR_LLL_PRIO,
+			       timer_nrf5_isr, NULL, IRQ_CONNECT_FLAGS);
+#endif /* CONFIG_BT_CTLR_RADIO_TIMER_ISR */
 #endif /* CONFIG_DYNAMIC_DIRECT_INTERRUPTS */
 	irq_disconnect_dynamic(HAL_RTC_IRQn, CONFIG_BT_CTLR_ULL_HIGH_PRIO,
 			       rtc0_nrf5_isr, NULL, 0U);
@@ -885,6 +931,7 @@ int lll_prepare_resolve(lll_is_abort_cb_t is_abort_cb, lll_abort_cb_t abort_cb,
 	LL_ASSERT(!ready || &ready->prepare_param == prepare_param);
 
 	event.curr.param = prepare_param->param;
+	event.curr.ticks_at_expire = prepare_param->ticks_at_expire;
 	event.curr.is_abort_cb = is_abort_cb;
 	event.curr.abort_cb = abort_cb;
 
@@ -964,6 +1011,8 @@ static inline struct lll_event *resume_enqueue(lll_prepare_cb_t resume_cb)
 	 */
 	prepare_param.param = event.curr.param;
 	event.curr.param = NULL;
+
+	prepare_param.ticks_at_expire = event.curr.ticks_at_expire;
 
 	return ull_prepare_enqueue(event.curr.is_abort_cb, event.curr.abort_cb,
 				   &prepare_param, resume_cb, 1);
@@ -1190,23 +1239,49 @@ static void preempt(void *param)
 
 	/* Preemptor not in pipeline */
 	if (ready->prepare_param.param != param) {
+		uint32_t ticks_at_preempt_min = ready->prepare_param.ticks_at_expire;
+		struct lll_event *ready_short = NULL;
 		struct lll_event *ready_next = NULL;
 		struct lll_event *preemptor;
 		uint32_t ret;
 
-		/* Find if a short prepare request in the pipeline */
+		/* Find if the short prepare request in the pipeline */
 		do {
-			preemptor = ull_prepare_dequeue_iter(&idx);
-			if (!ready_next && preemptor && !preemptor->is_aborted &&
-			    !preemptor->is_resume) {
+			uint32_t ticks_at_preempt_next;
+			uint32_t diff;
+
+			preemptor = prepare_dequeue_iter_ready_get(&idx);
+			if (!preemptor) {
+				break;
+			}
+
+			if (!ready_next) {
 				ready_next = preemptor;
 			}
-		} while (preemptor && (preemptor->is_aborted || preemptor->is_resume ||
-			 (preemptor->prepare_param.param != param)));
 
-		/* No short prepare request in pipeline */
+			if (preemptor->prepare_param.param == param) {
+				break;
+			}
+
+			ticks_at_preempt_next = preemptor->prepare_param.ticks_at_expire;
+			diff = ticker_ticks_diff_get(ticks_at_preempt_next,
+						     ticks_at_preempt_min);
+			if ((diff & BIT(HAL_TICKER_CNTR_MSBIT)) == 0U) {
+				continue;
+			}
+
+			ready_short = preemptor;
+			ticks_at_preempt_min = ticks_at_preempt_next;
+		} while (true);
+
+		/* "The" short prepare we were looking for is not in pipeline */
 		if (!preemptor) {
-			/* Start the preempt timeout for ready event */
+			/* Find any short prepare */
+			if (ready_short) {
+				ready = ready_short;
+			}
+
+			/* Start the preempt timeout for (short) ready event */
 			ret = preempt_ticker_start(ready, NULL, ready);
 			LL_ASSERT((ret == TICKER_STATUS_SUCCESS) ||
 				  (ret == TICKER_STATUS_BUSY));
@@ -1240,13 +1315,46 @@ static void preempt(void *param)
 	/* Check if current event want to continue */
 	err = event.curr.is_abort_cb(ready->prepare_param.param, event.curr.param, &resume_cb);
 	if (!err) {
-		/* Let preemptor LLL know about the cancelled prepare */
+		/* Check if curr and next ready event are different state/role  */
+		if (event.curr.param != ready->prepare_param.param) {
+			/* Check if ready event want to continue */
+			err = ready->is_abort_cb(NULL,
+						 ready->prepare_param.param,
+						 &resume_cb);
+			if (!err) {
+				err = -ECANCELED;
+
+				goto preempt_cancel_curr;
+			}
+		}
+
+		/* Let the prepare be dequeued from the pipeline */
 		ready->is_aborted = 1;
+
+		/* Check if resume requested */
+		if (err == -EAGAIN) {
+			struct lll_event *next;
+
+			next = ull_prepare_enqueue(ready->is_abort_cb, ready->abort_cb,
+						   &ready->prepare_param, resume_cb, 1U);
+			LL_ASSERT(next);
+
+			return;
+		}
+
+		/* Let preemptor LLL know about the cancelled prepare */
 		ready->abort_cb(&ready->prepare_param, ready->prepare_param.param);
 
 		return;
+
+	} else if (err == -EBUSY) {
+		/* Returns -EBUSY when same curr and next ready state/role, do not abort same curr
+		 * and next ready event.
+		 */
+		return;
 	}
 
+preempt_cancel_curr:
 	/* Abort the current event */
 	event.curr.abort_cb(NULL, event.curr.param);
 
