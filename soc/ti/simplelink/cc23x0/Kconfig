@@ -1,0 +1,90 @@
+# Copyright (c) 2024 Texas Instruments Incorporated
+# Copyright (c) 2024 BayLibre, SAS
+#
+# SPDX-License-Identifier: Apache-2.0
+
+config SOC_SERIES_CC23X0
+	select ARM
+	select CPU_CORTEX_M0PLUS
+	select CPU_CORTEX_M_HAS_VTOR
+	select TICKLESS_KERNEL
+	select DYNAMIC_INTERRUPTS
+	select HAS_CC23X0_SDK
+	select HAS_TI_CCFG
+	select DYNAMIC_DPL_OBJECTS
+	select EVENTS
+	select DYNAMIC_THREAD
+	select DYNAMIC_THREAD_ALLOC
+	select THREAD_STACK_INFO
+
+menu "Bootloader Configuration"
+depends on SOC_SERIES_CC23X0
+
+choice CC23X0_BLDR_VTOR_TYPE
+	prompt "Pointer to user bootloader vector table"
+	default CC23X0_BLDR_VTOR_TYPE_UNDEF
+
+config CC23X0_BLDR_VTOR_TYPE_UNDEF
+	bool "ROM serial bootloader"
+
+config CC23X0_BLDR_VTOR_TYPE_FORBID
+	bool "No bootloader invoked"
+
+config CC23X0_BLDR_VTOR_TYPE_USE_FCFG
+	bool "Use factory configuration"
+
+config CC23X0_BLDR_VTOR_TYPE_FLASH
+	bool "Use valid main flash address"
+
+endchoice # CC23X0_BLDR_VTOR_TYPE
+
+config CC23X0_BLDR_VTOR_FLASH
+	hex "User bootloader vector table address" if CC23X0_BLDR_VTOR_TYPE_FLASH
+	range 0 0x0effffff
+	default 0
+	help
+	  Whether a bootloader is run or not and where bootloader parameters are picked from
+	  depends on this address. If a bootloader is selected then that bootloader is always
+	  invoked as part of the boot process.
+
+config CC23X0_BLDR_ENABLED
+	bool "Bootloader commands"
+	default n
+	help
+	  If n, bootloader ignores all commands.
+
+config CC23X0_SERIAL_IO_CFG_INDEX
+	int "Serial IO configuration index"
+	range 0 2
+	default 0
+	help
+	  Index of which I/O mapping to use for UART/SPI.
+
+config CC23X0_PIN_TRIGGER_ENABLED
+	bool "Pin trigger"
+	default n
+	help
+	  If n, bootloader unconditionally triggers. Else normal pin trigger check is performed.
+
+config CC23X0_PIN_TRIGGER_DIO
+	int "Trigger DIO pin" if CC23X0_PIN_TRIGGER_ENABLED
+	range 0 25
+	default 0
+	help
+	  Index of DIO pin to use for pin trigger check.
+
+config CC23X0_PIN_TRIGGER_LEVEL_HI
+	bool "Trigger level high" if CC23X0_PIN_TRIGGER_ENABLED
+	default n
+	help
+	  Level on trigger pin that triggers bootloader.
+	  n = Low, y = High.
+
+config CC23X0_P_APP_VTOR
+	hex "Application vector table address"
+	range 0 0x0effffff
+	default 0
+	help
+	  User application start address.
+
+endmenu # "Bootloader Configuration"
