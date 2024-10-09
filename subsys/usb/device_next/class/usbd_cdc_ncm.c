@@ -235,7 +235,7 @@ struct cdc_ncm_eth_data {
 	struct k_work_delayable notif_work;
 };
 
-static void ncm_send_notification(struct usbd_class_data *const c_data);
+static int ncm_send_notification(const struct device *dev);
 
 static uint8_t cdc_ncm_get_ctrl_if(struct cdc_ncm_eth_data *const data)
 {
@@ -619,9 +619,7 @@ static int usbd_cdc_ncm_request(struct usbd_class_data *const c_data,
 	}
 
 	if (bi->ep == cdc_ncm_get_int_in(c_data)) {
-		/* FIXME: ncm_send_notification(c_data); */
 		net_buf_unref(buf);
-
 		return 0;
 	}
 
@@ -727,26 +725,41 @@ static int cdc_ncm_send_speed_change(const struct device *dev)
 }
 
 
-static void ncm_send_notification(struct usbd_class_data *const c_data)
+static int ncm_send_notification(const struct device *dev)
 {
-	const struct device *dev = usbd_class_get_private(c_data);
 	struct cdc_ncm_eth_data *data = dev->data;
 	int ret;
 
-	if (data->if_state == IF_STATE_CONNECTION_STATUS_SENT) {
+	/* Speed change must be sent first, chapter 7.1 */
+	if (data->if_state == IF_STATE_INIT) {
 		ret = cdc_ncm_send_speed_change(dev);
-		if (!ret) {
+		if (ret < 0) {
 			LOG_DBG("Cannot send %s (%d)", "speed change", ret);
-			return;
+			return ret;
 		}
 
+		LOG_DBG("Speed change sent");
 		data->if_state = IF_STATE_SPEED_CHANGE_SENT;
-		return;
+		return -EAGAIN;
 	}
 
 	if (data->if_state == IF_STATE_SPEED_CHANGE_SENT) {
+		ret = cdc_ncm_send_connected(dev, true);
+		if (ret < 0) {
+			LOG_DBG("Cannot send %s (%d)", "connected status", ret);
+			return ret;
+		}
+
+		LOG_DBG("Connected status sent");
+		data->if_state = IF_STATE_CONNECTION_STATUS_SENT;
+		return -EAGAIN;
+	}
+
+	if (data->if_state == IF_STATE_CONNECTION_STATUS_SENT) {
 		data->if_state = IF_STATE_DONE;
 	}
+
+	return 0;
 }
 
 static void send_notification_work(struct k_work *work)
@@ -760,7 +773,7 @@ static void send_notification_work(struct k_work *work)
 	dev = usbd_class_get_private(data->c_data);
 
 	if (atomic_test_bit(&data->state, CDC_NCM_IFACE_UP)) {
-		ret = cdc_ncm_send_connected(dev, true);
+		ret = ncm_send_notification(dev);
 	} else {
 		ret = cdc_ncm_send_connected(dev, false);
 	}
