@@ -436,6 +436,10 @@ SECTIONS
     *libzephyr.a:bootloader_console.*(.literal .text .literal.* .text.*)
     *libzephyr.a:bootloader_panic.*(.literal .text .literal.* .text.*)
 
+#if defined(CONFIG_ESPTOOLPY_FLASHMODE_QIO) || defined(CONFIG_ESPTOOLPY_FLASHMODE_QOUT)
+    *libzephyr.a:flash_qio_mode.*(.literal .text .literal.* .text.*)
+#endif
+
     *libzephyr.a:esp_image_format.*(.literal .text .literal.* .text.*)
     *libzephyr.a:flash_encrypt.*(.literal .text .literal.* .text.*)
     *libzephyr.a:flash_encryption_secure_features.*(.literal .text .literal.* .text.*)
@@ -561,6 +565,12 @@ SECTIONS
     *libzephyr.a:wdt_hal_iram.*(.rodata .rodata.*)
     *libzephyr.a:systimer_hal.*(.rodata .rodata.*)
     *libzephyr.a:spi_flash_hal_gpspi.*(.rodata .rodata.*)
+
+#ifdef CONFIG_ESP_SIMPLE_BOOT
+#if defined(CONFIG_ESPTOOLPY_FLASHMODE_QIO) || defined(CONFIG_ESPTOOLPY_FLASHMODE_QOUT)
+    *libzephyr.a:flash_qio_mode.*(.rodata .rodata.*)
+#endif
+#endif
 
     /* [mapping:soc] */
     *libzephyr.a:lldesc.*(.rodata .rodata.*)
